@@ -4,7 +4,9 @@
     android:layout_height="wrap_content"
     android:textColor="#AA00FF"
     android:textSize="@dimen/abc_text_size_medium_material"
-    android:id="@+id/list_item_artist_textview"
+    android:id="@+id/list_item_track_textview"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:gravity="center_vertical">
 </TextView>
+
+

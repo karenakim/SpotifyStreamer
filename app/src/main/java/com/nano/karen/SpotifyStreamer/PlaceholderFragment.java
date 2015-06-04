@@ -59,7 +59,7 @@ public class PlaceholderFragment extends Fragment {
         mArtistsAdapter = new ArrayAdapter<>(
                         getActivity(), // The current context (this activity)
                         R.layout.list_item_artist, // The name of the layout ID.
-                        R.id.list_item_forecast_textview, // The ID of the textview to populate.
+                        R.id.list_item_artist_textview, // The ID of the textview to populate.
                         artistsNamesList);
 
         final ListView listView = (ListView) rootView.findViewById(R.id.listview_artists);
@@ -108,9 +108,11 @@ public class PlaceholderFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                String forecast = mArtistsAdapter.getItem(position);
+                String artistName = mArtistsAdapter.getItem(position);
+
                 Intent intent = new Intent(getActivity(), TrackListActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, forecast);
+                        .putExtra(Intent.EXTRA_TEXT, artistName);
+
                 startActivity(intent);
             }
         });

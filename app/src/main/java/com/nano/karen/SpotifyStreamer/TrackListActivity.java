@@ -1,11 +1,16 @@
 package com.nano.karen.SpotifyStreamer;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
-import com.nano.karen.SpotifyStreamer.R;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class TrackListActivity extends ActionBarActivity {
@@ -14,6 +19,27 @@ public class TrackListActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_list);
+
+        Intent intent = getIntent();
+        String message = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+        ((TextView)findViewById(R.id.test)).setText(message);
+
+/*
+        final List<String> artistsTracksList = new ArrayList<>();
+        artistsTracksList.add(message + "1");
+        artistsTracksList.add(message + "2");
+
+        final ArrayAdapter<String> mTracksAdapter;
+        mTracksAdapter = new ArrayAdapter<>(
+                this, // The current context (this activity)
+                R.layout.list_item_tracks, // The name of the layout ID.
+                R.id.list_item_track_textview, // The ID of the textview to populate.
+                artistsTracksList);
+
+        final ListView listView = (ListView) findViewById(R.id.listview_artists);
+        listView.setAdapter(mTracksAdapter);
+*/
     }
 
     @Override
