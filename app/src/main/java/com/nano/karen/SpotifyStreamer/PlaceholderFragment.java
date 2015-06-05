@@ -18,7 +18,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -31,19 +33,19 @@ import retrofit.client.Response;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * Fragment for SpotifySteamer activity
  */
 public class PlaceholderFragment extends Fragment {
 
 
     private SpotifyApi api;
     private SpotifyService spotify;
+    final Map<String, String>  artistIdMap;
 
     public PlaceholderFragment() {
         api = new SpotifyApi();
         spotify = api.getService();
-
-
+        artistIdMap = new HashMap<String, String>();
     }
 
     @Override
@@ -73,6 +75,8 @@ public class PlaceholderFragment extends Fragment {
 
                     String artistToSearch = editText.getText().toString();
                     artistsNamesList.clear();
+
+
                     spotify.searchArtists(artistToSearch, new Callback<ArtistsPager>() {
                         @Override
                         public void success(ArtistsPager artistsPager, Response response) {
@@ -80,7 +84,9 @@ public class PlaceholderFragment extends Fragment {
 
                             for (Artist anArtist : artistsPager.artists.items) {
                                 Log.d("Artist success", anArtist.name);
+                                Log.d("Artist success", anArtist.id);
                                 artistsNamesList.add(anArtist.name);
+                                artistIdMap.put(anArtist.name, anArtist.id); // save id in map
                             }
 
                             getActivity().runOnUiThread(new Runnable() {
@@ -108,10 +114,8 @@ public class PlaceholderFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                String artistName = mArtistsAdapter.getItem(position);
-
                 Intent intent = new Intent(getActivity(), TrackListActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, artistName);
+                        .putExtra(Intent.EXTRA_TEXT, artistIdMap.get(mArtistsAdapter.getItem(position)));
 
                 startActivity(intent);
             }
