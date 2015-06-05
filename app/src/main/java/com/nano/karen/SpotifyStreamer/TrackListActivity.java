@@ -47,9 +47,10 @@ public class TrackListActivity extends ActionBarActivity {
         Intent intent = getIntent();
         String artistToSearch = intent.getStringExtra(Intent.EXTRA_TEXT);
 
-        final List<String> artistsTracksList = new ArrayList<>();
 
         // set up list view adapter
+        /*
+        final List<String> artistsTracksList = new ArrayList<>();
         final ArrayAdapter<String> mTracksAdapter;
         mTracksAdapter = new ArrayAdapter<>(
                 this, // The current context (this activity)
@@ -58,7 +59,19 @@ public class TrackListActivity extends ActionBarActivity {
                 artistsTracksList);
 
         final ListView listView = (ListView) findViewById(R.id.listview_tracks);
+        listView.setAdapter(mTracksAdapter); */
+
+
+
+        final List<TrackListItem> artistTracksList = new ArrayList<>();
+        final TrackListAdapter mTracksAdapter = new TrackListAdapter(
+                this, // The current context (this activity)
+                R.layout.list_item_tracks, // The name of the layout ID.
+                artistTracksList);
+
+        final ListView listView = (ListView) findViewById(R.id.listview_tracks);
         listView.setAdapter(mTracksAdapter);
+
 
 
         Map<String, Object> option = new HashMap<>();
@@ -69,7 +82,7 @@ public class TrackListActivity extends ActionBarActivity {
                 Log.d("Track success", topTracks.toString());
                 for (Track aTrack : topTracks.tracks) {
                     Log.d("Track success", aTrack.toString());
-                    artistsTracksList.add(aTrack.album.name);
+                    artistTracksList.add(new TrackListItem(R.drawable.dragon, aTrack.album.name));
                 }
 
                 runOnUiThread(new Runnable() {

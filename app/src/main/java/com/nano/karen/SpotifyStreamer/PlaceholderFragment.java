@@ -56,6 +56,7 @@ public class PlaceholderFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_placeholder, container, false);
         final EditText editText = (EditText) rootView.findViewById(R.id.editArtistName);
 
+        /*
         final List<String> artistsNamesList = new ArrayList<>();
         final ArrayAdapter<String> mArtistsAdapter;
         mArtistsAdapter = new ArrayAdapter<>(
@@ -67,6 +68,18 @@ public class PlaceholderFragment extends Fragment {
         final ListView listView = (ListView) rootView.findViewById(R.id.listview_artists);
         listView.setAdapter(mArtistsAdapter);
 
+
+        */
+        final List<ArtistListItem> artistsList = new ArrayList<>();
+        final ArtistListAdapter mArtistsAdapter = new ArtistListAdapter(
+                getActivity(), // The current context (this activity)
+                R.layout.list_item_artist, // The name of the layout ID.
+                artistsList);
+
+        final ListView listView = (ListView) rootView.findViewById(R.id.listview_artists);
+        listView.setAdapter(mArtistsAdapter);
+
+
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -74,7 +87,7 @@ public class PlaceholderFragment extends Fragment {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
 
                     String artistToSearch = editText.getText().toString();
-                    artistsNamesList.clear();
+                    artistsList.clear();
 
 
                     spotify.searchArtists(artistToSearch, new Callback<ArtistsPager>() {
@@ -85,7 +98,8 @@ public class PlaceholderFragment extends Fragment {
                             for (Artist anArtist : artistsPager.artists.items) {
                                 Log.d("Artist success", anArtist.name);
                                 Log.d("Artist success", anArtist.id);
-                                artistsNamesList.add(anArtist.name);
+                                // artistsNamesList.add(anArtist.name);
+                                artistsList.add(new ArtistListItem( R.drawable.dragon, anArtist.name));
                                 artistIdMap.put(anArtist.name, anArtist.id); // save id in map
                             }
 
@@ -115,7 +129,7 @@ public class PlaceholderFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Intent intent = new Intent(getActivity(), TrackListActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, artistIdMap.get(mArtistsAdapter.getItem(position)));
+                        .putExtra(Intent.EXTRA_TEXT, artistIdMap.get(mArtistsAdapter.getItem(position).artistName));
 
                 startActivity(intent);
             }

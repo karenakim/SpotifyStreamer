@@ -1,12 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textColor="#AA00FF"
-    android:textSize="@dimen/abc_text_size_medium_material"
-    android:id="@+id/list_item_track_textview"
+    android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:gravity="center_vertical">
-</TextView>
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/list_item_track_image"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:adjustViewBounds="true"/>
 
 
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/purple"
+        android:textSize="@dimen/abc_text_size_medium_material"
+        android:id="@+id/list_item_track_textview"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:gravity="center_vertical">
+    </TextView>
+
+</LinearLayout>
