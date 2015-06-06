@@ -82,7 +82,7 @@ public class TrackListActivity extends ActionBarActivity {
                 Log.d("Track success", topTracks.toString());
                 for (Track aTrack : topTracks.tracks) {
                     Log.d("Track success", aTrack.toString());
-                    artistTracksList.add(new TrackListItem(R.drawable.dragon, aTrack.album.name));
+                    artistTracksList.add(new TrackListItem(aTrack.album.images.get(0).url, aTrack.album.name));
                 }
 
                 runOnUiThread(new Runnable() {

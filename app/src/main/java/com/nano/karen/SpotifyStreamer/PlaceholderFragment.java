@@ -98,8 +98,9 @@ public class PlaceholderFragment extends Fragment {
                             for (Artist anArtist : artistsPager.artists.items) {
                                 Log.d("Artist success", anArtist.name);
                                 Log.d("Artist success", anArtist.id);
+                                Log.d("Artist thumbnail", anArtist.images.get(0).url);
                                 // artistsNamesList.add(anArtist.name);
-                                artistsList.add(new ArtistListItem( R.drawable.dragon, anArtist.name));
+                                artistsList.add(new ArtistListItem(anArtist.images.get(0).url, anArtist.name));
                                 artistIdMap.put(anArtist.name, anArtist.id); // save id in map
                             }
 

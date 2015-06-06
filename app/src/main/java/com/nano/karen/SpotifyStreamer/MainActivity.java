@@ -19,6 +19,14 @@ public class MainActivity extends ActionBarActivity {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
+
+           /*  Question here: what is id stand for, do I need to define it in an xml file? if so, which one?
+           getFragmentManager()
+                   .beginTransaction()
+                   .replace(R.id.container, new PlaceholderFragment(), id)
+            .commit();
+           */
+
         }
     }
 

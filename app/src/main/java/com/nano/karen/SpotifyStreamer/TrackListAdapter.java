@@ -10,6 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 
@@ -39,7 +41,14 @@ public class TrackListAdapter extends ArrayAdapter<TrackListItem> {
         ImageView imageView = (ImageView) convertView.findViewById(R.id.list_item_track_image);
         TextView nameView = (TextView) convertView.findViewById(R.id.list_item_track_textview);
         // Populate the data into the template view using the data object
-        imageView.setImageResource(rowItem.trackImageID);
+        // imageView.setImageResource(rowItem.trackImageURL);
+
+        Picasso.with(context)
+                .load(rowItem.trackImageURL)
+                .resize(80, 80)
+                .error(R.drawable.dragon) // default image
+                .into(imageView);
+
         nameView.setText(rowItem.trackName);
         // Return the completed view to render on screen
         return convertView;
@@ -47,11 +56,11 @@ public class TrackListAdapter extends ArrayAdapter<TrackListItem> {
 }
 
 class TrackListItem {
-    public TrackListItem(int imageID, String name){
-        trackImageID = imageID;
+    public TrackListItem(String imageID, String name){
+        trackImageURL = imageID;
         trackName = name;
     }
 
-    int trackImageID;
+    String trackImageURL;
     String trackName;
 }
