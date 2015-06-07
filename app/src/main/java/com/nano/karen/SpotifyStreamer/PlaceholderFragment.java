@@ -1,8 +1,9 @@
 package com.nano.karen.SpotifyStreamer;
 
 
+import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -15,7 +16,9 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.support.v7.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,10 +40,10 @@ import retrofit.client.Response;
  */
 public class PlaceholderFragment extends Fragment {
 
-
     private SpotifyApi api;
     private SpotifyService spotify;
     final Map<String, String>  artistIdMap;
+    static String TAG;
 
     public PlaceholderFragment() {
         api = new SpotifyApi();
@@ -54,22 +57,8 @@ public class PlaceholderFragment extends Fragment {
 
 
         final View rootView = inflater.inflate(R.layout.fragment_placeholder, container, false);
-        final EditText editText = (EditText) rootView.findViewById(R.id.editArtistName);
+        final SearchView searchText = (SearchView) rootView.findViewById(R.id.editArtistName);
 
-        /*
-        final List<String> artistsNamesList = new ArrayList<>();
-        final ArrayAdapter<String> mArtistsAdapter;
-        mArtistsAdapter = new ArrayAdapter<>(
-                        getActivity(), // The current context (this activity)
-                        R.layout.list_item_artist, // The name of the layout ID.
-                        R.id.list_item_artist_textview, // The ID of the textview to populate.
-                        artistsNamesList);
-
-        final ListView listView = (ListView) rootView.findViewById(R.id.listview_artists);
-        listView.setAdapter(mArtistsAdapter);
-
-
-        */
         final List<ArtistListItem> artistsList = new ArrayList<>();
         final ArtistListAdapter mArtistsAdapter = new ArtistListAdapter(
                 getActivity(), // The current context (this activity)
@@ -79,51 +68,60 @@ public class PlaceholderFragment extends Fragment {
         final ListView listView = (ListView) rootView.findViewById(R.id.listview_artists);
         listView.setAdapter(mArtistsAdapter);
 
+        searchText.setOnQueryTextListener(
+                new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String artistToSearch) {
+                        artistsList.clear();
+                        spotify.searchArtists(artistToSearch, new Callback<ArtistsPager>() {
+                            @Override
+                            public void success(ArtistsPager artistsPager, Response response) {
 
-        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                Log.d("Artist success", artistsPager.toString());
+                                if (artistsPager.artists.items.isEmpty()) {
+                                    Log.d("Artist not found", artistsPager.toString());
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast toast = Toast.makeText(getActivity(), "Artist not found!", Toast.LENGTH_SHORT);
+                                            toast.show();
+                                        }
+                                    });
+                                    return;
+                                }
 
-                    String artistToSearch = editText.getText().toString();
-                    artistsList.clear();
+                                for (Artist anArtist : artistsPager.artists.items) {
+                                    if (!anArtist.images.isEmpty()) {
+                                        artistsList.add(new ArtistListItem(anArtist.images.get(0).url, anArtist.name));
+                                    }
+                                    else {
+                                        artistsList.add(new ArtistListItem(getString(R.string.default_artist_image), anArtist.name));
+                                    }
+                                    artistIdMap.put(anArtist.name, anArtist.id); // save id in map
+                                }
 
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mArtistsAdapter.notifyDataSetChanged();
+                                    }
+                                });
 
-                    spotify.searchArtists(artistToSearch, new Callback<ArtistsPager>() {
-                        @Override
-                        public void success(ArtistsPager artistsPager, Response response) {
-                            Log.d("Artist success", artistsPager.toString());
-
-                            for (Artist anArtist : artistsPager.artists.items) {
-                                Log.d("Artist success", anArtist.name);
-                                Log.d("Artist success", anArtist.id);
-                                Log.d("Artist thumbnail", anArtist.images.get(0).url);
-                                // artistsNamesList.add(anArtist.name);
-                                artistsList.add(new ArtistListItem(anArtist.images.get(0).url, anArtist.name));
-                                artistIdMap.put(anArtist.name, anArtist.id); // save id in map
                             }
 
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mArtistsAdapter.notifyDataSetChanged();
-                                }
-                            });
+                            @Override
+                            public void failure(RetrofitError error) {
+                                Log.d("Artist failure", error.toString());
+                            }
+                        });
+                        return true;
+                    }
 
-                        }
-
-                        @Override
-                        public void failure(RetrofitError error) {
-                            Log.d("Artist failure", error.toString());
-                        }
-                    });
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        return false;
+                    }
+                });
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -140,10 +138,5 @@ public class PlaceholderFragment extends Fragment {
         return rootView;
 
     }
-
-
-
-
-
 
 }
