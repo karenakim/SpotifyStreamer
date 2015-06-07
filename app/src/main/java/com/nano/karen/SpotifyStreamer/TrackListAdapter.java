@@ -3,6 +3,8 @@ package com.nano.karen.SpotifyStreamer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +15,8 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import kaaes.spotify.webapi.android.models.Artist;
 
 
 /**
@@ -55,6 +59,7 @@ public class TrackListAdapter extends ArrayAdapter<TrackListItem> {
     }
 }
 
+/*
 class TrackListItem {
     public TrackListItem(String imageID, String name){
         trackImageURL = imageID;
@@ -63,4 +68,53 @@ class TrackListItem {
 
     String trackImageURL;
     String trackName;
+} */
+
+class TrackListItem implements Parcelable {
+    public String trackName;
+    public String trackImageURL;
+    public String trackID;
+
+    public TrackListItem(Artist artist) {
+        trackName = artist.name;
+        trackImageURL = artist.images.get(0).url;
+    }
+
+    public TrackListItem(String imageID, String name, String id){
+        trackImageURL = imageID;
+        trackName = name;
+        trackID = id;
+    }
+
+    public TrackListItem(Parcel in) {
+        ReadFromParcel(in);
+    }
+
+    public static final Parcelable.Creator<ArtistListItem> CREATOR = new Parcelable.Creator<ArtistListItem>() {
+        public ArtistListItem createFromParcel(Parcel in ) {
+            return new ArtistListItem( in );
+        }
+
+        public ArtistListItem[] newArray(int size) {
+            return new ArtistListItem[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(trackName);
+        dest.writeString(trackImageURL);
+        dest.writeString(trackID);
+    }
+
+    private void ReadFromParcel(Parcel in) {
+        trackName = in.readString();
+        trackImageURL = in.readString();
+        trackID = in.readString();
+    }
 }

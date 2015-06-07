@@ -32,12 +32,15 @@ public class TrackListActivity extends ActionBarActivity {
 
     private SpotifyApi api;
     private SpotifyService spotify;
+    private ArrayList<TrackListItem> artistTracksList;
+    
+    final String tracksBundleID = "tracksBundle";
 
     public TrackListActivity() {
         api = new SpotifyApi();
         spotify = api.getService();
+        artistTracksList = new ArrayList<>();
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,22 +51,11 @@ public class TrackListActivity extends ActionBarActivity {
         String artistToSearch = intent.getStringExtra(Intent.EXTRA_TEXT);
 
 
-        // set up list view adapter
-        /*
-        final List<String> artistsTracksList = new ArrayList<>();
-        final ArrayAdapter<String> mTracksAdapter;
-        mTracksAdapter = new ArrayAdapter<>(
-                this, // The current context (this activity)
-                R.layout.list_item_tracks, // The name of the layout ID.
-                R.id.list_item_track_textview, // The ID of the textview to populate.
-                artistsTracksList);
-
-        final ListView listView = (ListView) findViewById(R.id.listview_tracks);
-        listView.setAdapter(mTracksAdapter); */
+        if (savedInstanceState != null) {
+            artistTracksList = savedInstanceState.getParcelableArrayList(tracksBundleID);
+        }
 
 
-
-        final List<TrackListItem> artistTracksList = new ArrayList<>();
         final TrackListAdapter mTracksAdapter = new TrackListAdapter(
                 this, // The current context (this activity)
                 R.layout.list_item_tracks, // The name of the layout ID.
@@ -73,31 +65,32 @@ public class TrackListActivity extends ActionBarActivity {
         listView.setAdapter(mTracksAdapter);
 
 
+        if (artistTracksList.isEmpty()) {
+            Map<String, Object> option = new HashMap<>();
+            option.put("country", "US");
+            spotify.getArtistTopTrack(artistToSearch, option, new Callback<Tracks>() {
+                @Override
+                public void success(Tracks topTracks, Response response) {
+                    Log.d("Track success", topTracks.toString());
+                    for (Track aTrack : topTracks.tracks) {
+                        Log.d("Track success", aTrack.toString());
+                        artistTracksList.add(new TrackListItem(aTrack.album.images.get(0).url, aTrack.album.name, aTrack.album.id));
+                    }
 
-        Map<String, Object> option = new HashMap<>();
-        option.put("country", "US");
-        spotify.getArtistTopTrack(artistToSearch, option, new Callback<Tracks>() {
-            @Override
-            public void success(Tracks topTracks, Response response) {
-                Log.d("Track success", topTracks.toString());
-                for (Track aTrack : topTracks.tracks) {
-                    Log.d("Track success", aTrack.toString());
-                    artistTracksList.add(new TrackListItem(aTrack.album.images.get(0).url, aTrack.album.name));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mTracksAdapter.notifyDataSetChanged();
+                        }
+                    });
                 }
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTracksAdapter.notifyDataSetChanged();
-                    }
-                });
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("Track failure", error.toString());
-            }
-        });
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("Track failure", error.toString());
+                }
+            });
+        }
 
     }
 
@@ -119,7 +112,15 @@ public class TrackListActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putParcelableArrayList(tracksBundleID, artistTracksList);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+
 }

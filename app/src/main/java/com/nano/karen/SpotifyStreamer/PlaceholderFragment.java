@@ -2,28 +2,18 @@ package com.nano.karen.SpotifyStreamer;
 
 
 import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.support.v7.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -42,24 +32,28 @@ public class PlaceholderFragment extends Fragment {
 
     private SpotifyApi api;
     private SpotifyService spotify;
-    final Map<String, String>  artistIdMap;
+    private ArrayList<ArtistListItem> artistsList;
+
     static String TAG;
+    final String artistsBundleID = "artistsBundle";
 
     public PlaceholderFragment() {
         api = new SpotifyApi();
         spotify = api.getService();
-        artistIdMap = new HashMap<String, String>();
+        artistsList = new ArrayList<>();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        if (savedInstanceState != null) {
+            artistsList = savedInstanceState.getParcelableArrayList(artistsBundleID);
+        }
 
         final View rootView = inflater.inflate(R.layout.fragment_placeholder, container, false);
         final SearchView searchText = (SearchView) rootView.findViewById(R.id.editArtistName);
 
-        final List<ArtistListItem> artistsList = new ArrayList<>();
         final ArtistListAdapter mArtistsAdapter = new ArtistListAdapter(
                 getActivity(), // The current context (this activity)
                 R.layout.list_item_artist, // The name of the layout ID.
@@ -77,7 +71,7 @@ public class PlaceholderFragment extends Fragment {
                             @Override
                             public void success(ArtistsPager artistsPager, Response response) {
 
-                                Log.d("Artist success", artistsPager.toString());
+                                //Log.d("Artist success", artistsPager.toString());
                                 if (artistsPager.artists.items.isEmpty()) {
                                     Log.d("Artist not found", artistsPager.toString());
                                     getActivity().runOnUiThread(new Runnable() {
@@ -92,12 +86,10 @@ public class PlaceholderFragment extends Fragment {
 
                                 for (Artist anArtist : artistsPager.artists.items) {
                                     if (!anArtist.images.isEmpty()) {
-                                        artistsList.add(new ArtistListItem(anArtist.images.get(0).url, anArtist.name));
+                                        artistsList.add(new ArtistListItem(anArtist.images.get(0).url, anArtist.name, anArtist.id));
+                                    } else {  // no image, use default one
+                                        artistsList.add(new ArtistListItem(getString(R.string.default_artist_image), anArtist.name, anArtist.id));
                                     }
-                                    else {
-                                        artistsList.add(new ArtistListItem(getString(R.string.default_artist_image), anArtist.name));
-                                    }
-                                    artistIdMap.put(anArtist.name, anArtist.id); // save id in map
                                 }
 
                                 getActivity().runOnUiThread(new Runnable() {
@@ -106,7 +98,6 @@ public class PlaceholderFragment extends Fragment {
                                         mArtistsAdapter.notifyDataSetChanged();
                                     }
                                 });
-
                             }
 
                             @Override
@@ -128,15 +119,19 @@ public class PlaceholderFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Intent intent = new Intent(getActivity(), TrackListActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, artistIdMap.get(mArtistsAdapter.getItem(position).artistName));
-
+                        .putExtra(Intent.EXTRA_TEXT, mArtistsAdapter.getItem(position).artistID);
                 startActivity(intent);
             }
         });
-
-
         return rootView;
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putParcelableArrayList(artistsBundleID, artistsList);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
 }
+

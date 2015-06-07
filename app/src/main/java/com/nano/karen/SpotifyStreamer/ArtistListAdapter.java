@@ -2,8 +2,8 @@ package com.nano.karen.SpotifyStreamer;
 
 import android.app.Activity;
 import android.content.Context;
-import android.media.Image;
-import android.support.v4.app.FragmentActivity;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +14,8 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import kaaes.spotify.webapi.android.models.Artist;
 
 /**
  * Created by karenjin on 6/5/15.
@@ -54,6 +56,7 @@ public class ArtistListAdapter extends ArrayAdapter<ArtistListItem> {
     }
 }
 
+/*
 class ArtistListItem {
     public ArtistListItem(String imageID, String name){
         artistImageURL = imageID;
@@ -61,4 +64,54 @@ class ArtistListItem {
     }
     String artistImageURL;
     String artistName;
+}*/
+
+
+class ArtistListItem implements Parcelable {
+    public String artistName;
+    public String artistImageURL;
+    public String artistID;
+
+    public ArtistListItem(Artist artist) {
+        artistName = artist.name;
+        artistImageURL = artist.images.get(0).url;
+    }
+
+    public ArtistListItem(String imageID, String name, String id){
+        artistImageURL = imageID;
+        artistName = name;
+        artistID = id;
+    }
+
+    public ArtistListItem(Parcel in) {
+        ReadFromParcel(in);
+    }
+
+    public static final Parcelable.Creator<ArtistListItem> CREATOR = new Parcelable.Creator<ArtistListItem>() {
+        public ArtistListItem createFromParcel(Parcel in ) {
+            return new ArtistListItem( in );
+        }
+
+        public ArtistListItem[] newArray(int size) {
+            return new ArtistListItem[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(artistName);
+        dest.writeString(artistImageURL);
+        dest.writeString(artistID);
+    }
+
+    private void ReadFromParcel(Parcel in) {
+        artistName = in.readString();
+        artistImageURL = in.readString();
+        artistID = in.readString();
+    }
 }
