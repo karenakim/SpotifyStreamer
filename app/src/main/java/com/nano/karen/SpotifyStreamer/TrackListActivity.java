@@ -29,11 +29,10 @@ import retrofit.client.Response;
 
 
 public class TrackListActivity extends ActionBarActivity {
-
     private SpotifyApi api;
     private SpotifyService spotify;
     private ArrayList<TrackListItem> artistTracksList;
-    
+
     final String tracksBundleID = "tracksBundle";
 
     public TrackListActivity() {
