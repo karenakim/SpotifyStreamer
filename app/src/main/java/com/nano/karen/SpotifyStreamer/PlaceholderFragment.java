@@ -103,6 +103,13 @@ public class PlaceholderFragment extends Fragment {
                             @Override
                             public void failure(RetrofitError error) {
                                 Log.d("Artist failure", error.toString());
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast toast = Toast.makeText(getActivity(), "Artist not found!", Toast.LENGTH_SHORT);
+                                        toast.show();
+                                    }
+                                });
                             }
                         });
                         return true;

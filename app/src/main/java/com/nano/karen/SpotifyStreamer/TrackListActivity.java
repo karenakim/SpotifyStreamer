@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.okhttp.Call;
 
@@ -87,6 +88,13 @@ public class TrackListActivity extends ActionBarActivity {
                 @Override
                 public void failure(RetrofitError error) {
                     Log.d("Track failure", error.toString());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Track not found!", Toast.LENGTH_SHORT);
+                            toast.show();
+                        }
+                    });
                 }
             });
         }
