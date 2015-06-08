@@ -45,7 +45,7 @@ public class TrackListActivity extends ActionBarActivity {
         setContentView(R.layout.activity_tracklist);
 
         Intent intent = getIntent();
-        String artistToSearch = intent.getStringExtra(Intent.EXTRA_TEXT);
+        final String artistToSearch = intent.getStringExtra(Intent.EXTRA_TEXT);
 
 
         if (savedInstanceState != null) {
@@ -70,7 +70,8 @@ public class TrackListActivity extends ActionBarActivity {
                     Log.d("Track success", topTracks.toString());
                     for (Track aTrack : topTracks.tracks) {
                         Log.d("Track success", aTrack.toString());
-                        artistTracksList.add(new TrackListItem(aTrack.album.images.get(0).url, aTrack.album.name, aTrack.preview_url));
+                        artistTracksList.add(
+                                new TrackListItem(artistToSearch, aTrack.album.name, aTrack.album.images.get(0).url, aTrack.album.name, aTrack.preview_url));
                     }
 
                     runOnUiThread(new Runnable() {
@@ -98,8 +99,9 @@ public class TrackListActivity extends ActionBarActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Intent intent = new Intent(getApplicationContext(), PlaybackActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, mTracksAdapter.getItem(position).trackPreviewURL);
+                Intent intent = new Intent(getApplicationContext(), PlaybackActivity.class);
+                //intent.putExtra(Intent.EXTRA_TEXT, mTracksAdapter.getItem(position).trackPreviewURL);
+                intent.putExtra("my parcel", mTracksAdapter.getItem(position));
                 startActivity(intent);
             }
         });

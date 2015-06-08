@@ -16,9 +16,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Artist;
-
-
 /**
  * Created by karenjin on 6/5/15.
  */
@@ -47,11 +44,18 @@ public class TrackListAdapter extends ArrayAdapter<TrackListItem> {
         // Populate the data into the template view using the data object
         // imageView.setImageResource(rowItem.trackImageURL);
 
-        Picasso.with(context)
-                .load(rowItem.trackImageURL)
-                .resize(80, 80)
-                .error(R.drawable.dragon) // default image
-                .into(imageView);
+        if (!rowItem.trackImageURL.equals("")) {
+            Picasso.with(context)
+                    .load(rowItem.trackImageURL)
+                    .resize(80, 80)
+                    .error(R.drawable.dragon) // default image
+                    .into(imageView);
+        } else {
+            Picasso.with(context)
+                    .load(R.drawable.dragon)
+                    .resize(80, 80)
+                    .into(imageView);
+        }
 
         nameView.setText(rowItem.trackName);
         // Return the completed view to render on screen
@@ -60,14 +64,11 @@ public class TrackListAdapter extends ArrayAdapter<TrackListItem> {
 }
 
 class TrackListItem implements Parcelable {
+    public String artistName;
+    public String albumName;
     public String trackName;
     public String trackImageURL;
     public String trackPreviewURL;
-
-    public TrackListItem(Artist artist) {
-        trackName = artist.name;
-        trackImageURL = artist.images.get(0).url;
-    }
 
     public TrackListItem(String imageID, String name, String url){
         trackImageURL = imageID;
@@ -75,17 +76,25 @@ class TrackListItem implements Parcelable {
         trackPreviewURL = url;
     }
 
+    public TrackListItem(String artName, String albName, String iURL, String tName, String tURL){
+        artistName = artName;
+        albumName = albName;
+        trackName = tName;
+        trackImageURL = iURL;
+        trackPreviewURL = tURL;
+    }
+
     public TrackListItem(Parcel in) {
         ReadFromParcel(in);
     }
 
-    public static final Parcelable.Creator<ArtistListItem> CREATOR = new Parcelable.Creator<ArtistListItem>() {
-        public ArtistListItem createFromParcel(Parcel in ) {
-            return new ArtistListItem( in );
+    public static final Parcelable.Creator<TrackListItem> CREATOR = new Parcelable.Creator<TrackListItem>() {
+        public TrackListItem createFromParcel(Parcel in ) {
+            return new TrackListItem( in );
         }
 
-        public ArtistListItem[] newArray(int size) {
-            return new ArtistListItem[size];
+        public TrackListItem[] newArray(int size) {
+            return new TrackListItem[size];
         }
     };
 
@@ -96,12 +105,16 @@ class TrackListItem implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(artistName);
+        dest.writeString(albumName);
         dest.writeString(trackName);
         dest.writeString(trackImageURL);
         dest.writeString(trackPreviewURL);
     }
 
     private void ReadFromParcel(Parcel in) {
+        artistName = in.readString();
+        albumName = in.readString();
         trackName = in.readString();
         trackImageURL = in.readString();
         trackPreviewURL = in.readString();

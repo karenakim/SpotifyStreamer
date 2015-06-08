@@ -8,8 +8,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.nano.karen.SpotifyStreamer.R;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 
@@ -22,14 +25,33 @@ public class PlaybackActivity extends ActionBarActivity {
         setContentView(R.layout.activity_playback);
 
         Intent intent = getIntent();
-        String trackURL = intent.getStringExtra(Intent.EXTRA_TEXT);
-        Log.d("Playback URL", trackURL);
+        TrackListItem mTrack = intent.getExtras().getParcelable("my parcel");
 
+        TextView artistNameView = (TextView) findViewById(R.id.playback_artist_name);
+        artistNameView.setText(mTrack.artistName);
 
+        TextView albumNameView = (TextView) findViewById(R.id.playback_album_name);
+        albumNameView.setText(mTrack.albumName);
+
+        ImageView albumImageView = (ImageView) findViewById(R.id.playback_album_image);
+        if (!mTrack.trackImageURL.equals("")) {
+            Picasso.with(this)
+                    .load(mTrack.trackImageURL)
+                    .resize(80, 80)
+                    .error(R.drawable.dragon) // default image
+                    .into(albumImageView);
+        } else {
+            Picasso.with(this)
+                    .load(R.drawable.dragon)
+                    .resize(80, 80)
+                    .into(albumImageView);
+        }
+        
         MediaPlayer mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            mediaPlayer.setDataSource(trackURL);
+            //mediaPlayer.setDataSource(trackURL);
+            mediaPlayer.setDataSource(mTrack.trackPreviewURL);
             mediaPlayer.prepare();
         }
         catch (IllegalArgumentException e){
