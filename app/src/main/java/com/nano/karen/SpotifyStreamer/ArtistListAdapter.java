@@ -44,11 +44,19 @@ public class ArtistListAdapter extends ArrayAdapter<ArtistListItem> {
 
         // Populate the data into the template view using the data object
         //imageView.setImageResource(rowItem.artistImageID);
-        Picasso.with(context)
-                .load(rowItem.artistImageURL)
-                .resize(80, 80)
-                .error(R.drawable.dragon) // default image
-                .into(imageView);
+        if (!rowItem.artistImageURL.equals("")) {
+            Picasso.with(context)
+                    .load(rowItem.artistImageURL)
+                    .resize(80, 80)
+                    .error(R.drawable.dragon) // default image
+                    .into(imageView);
+        } else {
+            Picasso.with(context)
+                    .load(R.drawable.dragon)
+                    .resize(80, 80)
+                    .into(imageView);
+        }
+
 
         nameView.setText(rowItem.artistName);
         // Return the completed view to render on screen

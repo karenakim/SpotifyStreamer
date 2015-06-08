@@ -6,22 +6,19 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.okhttp.Call;
+import com.nano.karen.SpotifyStreamer.PlaybackActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.ArtistsPager;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.Callback;
@@ -45,7 +42,7 @@ public class TrackListActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_track_list);
+        setContentView(R.layout.activity_tracklist);
 
         Intent intent = getIntent();
         String artistToSearch = intent.getStringExtra(Intent.EXTRA_TEXT);
@@ -64,7 +61,6 @@ public class TrackListActivity extends ActionBarActivity {
         final ListView listView = (ListView) findViewById(R.id.listview_tracks);
         listView.setAdapter(mTracksAdapter);
 
-
         if (artistTracksList.isEmpty()) {
             Map<String, Object> option = new HashMap<>();
             option.put("country", "US");
@@ -74,7 +70,7 @@ public class TrackListActivity extends ActionBarActivity {
                     Log.d("Track success", topTracks.toString());
                     for (Track aTrack : topTracks.tracks) {
                         Log.d("Track success", aTrack.toString());
-                        artistTracksList.add(new TrackListItem(aTrack.album.images.get(0).url, aTrack.album.name, aTrack.album.id));
+                        artistTracksList.add(new TrackListItem(aTrack.album.images.get(0).url, aTrack.album.name, aTrack.preview_url));
                     }
 
                     runOnUiThread(new Runnable() {
@@ -99,6 +95,14 @@ public class TrackListActivity extends ActionBarActivity {
             });
         }
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Intent intent = new Intent(getApplicationContext(), PlaybackActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, mTracksAdapter.getItem(position).trackPreviewURL);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -121,7 +125,6 @@ public class TrackListActivity extends ActionBarActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {

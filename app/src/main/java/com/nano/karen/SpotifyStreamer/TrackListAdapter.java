@@ -59,31 +59,20 @@ public class TrackListAdapter extends ArrayAdapter<TrackListItem> {
     }
 }
 
-/*
-class TrackListItem {
-    public TrackListItem(String imageID, String name){
-        trackImageURL = imageID;
-        trackName = name;
-    }
-
-    String trackImageURL;
-    String trackName;
-} */
-
 class TrackListItem implements Parcelable {
     public String trackName;
     public String trackImageURL;
-    public String trackID;
+    public String trackPreviewURL;
 
     public TrackListItem(Artist artist) {
         trackName = artist.name;
         trackImageURL = artist.images.get(0).url;
     }
 
-    public TrackListItem(String imageID, String name, String id){
+    public TrackListItem(String imageID, String name, String url){
         trackImageURL = imageID;
         trackName = name;
-        trackID = id;
+        trackPreviewURL = url;
     }
 
     public TrackListItem(Parcel in) {
@@ -109,12 +98,12 @@ class TrackListItem implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(trackName);
         dest.writeString(trackImageURL);
-        dest.writeString(trackID);
+        dest.writeString(trackPreviewURL);
     }
 
     private void ReadFromParcel(Parcel in) {
         trackName = in.readString();
         trackImageURL = in.readString();
-        trackID = in.readString();
+        trackPreviewURL = in.readString();
     }
 }
