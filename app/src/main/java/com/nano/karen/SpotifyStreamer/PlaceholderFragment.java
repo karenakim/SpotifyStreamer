@@ -125,8 +125,9 @@ public class PlaceholderFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Intent intent = new Intent(getActivity(), TrackListActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, mArtistsAdapter.getItem(position).artistID);
+                Intent intent = new Intent(getActivity(), TrackListActivity.class);
+                intent.putExtra("artistID", mArtistsAdapter.getItem(position).artistID);
+                intent.putExtra("artistName", mArtistsAdapter.getItem(position).artistName);
                 startActivity(intent);
             }
         });

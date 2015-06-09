@@ -2,22 +2,29 @@ package com.nano.karen.SpotifyStreamer;
 
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.MediaMetadata;
 import android.media.MediaPlayer;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.nano.karen.SpotifyStreamer.R;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 
-
 public class PlaybackActivity extends ActionBarActivity {
+    private TextView artistNameView;
+    private TextView albumNameView;
+    private ImageView albumImageView;
+    private TextView trackNameView;
+    private TextView mStart;
+    private TextView mEnd;
+    private SeekBar mSeekbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,26 +34,34 @@ public class PlaybackActivity extends ActionBarActivity {
         Intent intent = getIntent();
         TrackListItem mTrack = intent.getExtras().getParcelable("my parcel");
 
-        TextView artistNameView = (TextView) findViewById(R.id.playback_artist_name);
+        artistNameView = (TextView) findViewById(R.id.playback_artist_name);
+        albumNameView = (TextView) findViewById(R.id.playback_album_name);
+        albumImageView = (ImageView) findViewById(R.id.playback_album_image);
+        trackNameView = (TextView) findViewById(R.id.playback_track_name);
+        mStart = (TextView) findViewById(R.id.startText);
+        mEnd = (TextView) findViewById(R.id.endText);
+        mSeekbar = (SeekBar) findViewById(R.id.seekBar);
+
         artistNameView.setText(mTrack.artistName);
-
-        TextView albumNameView = (TextView) findViewById(R.id.playback_album_name);
+        trackNameView.setText(mTrack.trackName);
         albumNameView.setText(mTrack.albumName);
+        mStart.setText("0");
+        mEnd.setText("100");
 
-        ImageView albumImageView = (ImageView) findViewById(R.id.playback_album_image);
+
         if (!mTrack.trackImageURL.equals("")) {
             Picasso.with(this)
                     .load(mTrack.trackImageURL)
-                    .resize(80, 80)
+                    .resize(600, 600)
                     .error(R.drawable.dragon) // default image
                     .into(albumImageView);
         } else {
             Picasso.with(this)
                     .load(R.drawable.dragon)
-                    .resize(80, 80)
+                    .resize(600, 600)
                     .into(albumImageView);
         }
-        
+
         MediaPlayer mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
@@ -63,6 +78,26 @@ public class PlaybackActivity extends ActionBarActivity {
             Log.e("Playback", "bad stream");
         }
         mediaPlayer.start();
+
+/*
+        mSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mStart.setText(Utils.formatMillis(progress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                stopSeekbarUpdate();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                getMediaController().getTransportControls().seekTo(seekBar.getProgress());
+                scheduleSeekbarUpdate();
+            }
+        }); */
+
     }
 
     @Override
@@ -86,4 +121,16 @@ public class PlaybackActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void updateDuration(MediaMetadata metadata) {
+        if (metadata == null) {
+            return;
+        }
+        int duration = (int) metadata.getLong(MediaMetadata.METADATA_KEY_DURATION);
+        mSeekbar.setMax(duration);
+        mEnd.setText(duration);
+    }
+
+
+
 }

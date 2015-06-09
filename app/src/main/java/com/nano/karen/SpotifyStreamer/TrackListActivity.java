@@ -19,6 +19,7 @@ import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.Callback;
@@ -45,7 +46,8 @@ public class TrackListActivity extends ActionBarActivity {
         setContentView(R.layout.activity_tracklist);
 
         Intent intent = getIntent();
-        final String artistToSearch = intent.getStringExtra(Intent.EXTRA_TEXT);
+        final String artistIDToSearch = intent.getStringExtra("artistID");
+        final String artistNameToSearch = intent.getStringExtra("artistName");
 
 
         if (savedInstanceState != null) {
@@ -64,14 +66,21 @@ public class TrackListActivity extends ActionBarActivity {
         if (artistTracksList.isEmpty()) {
             Map<String, Object> option = new HashMap<>();
             option.put("country", "US");
-            spotify.getArtistTopTrack(artistToSearch, option, new Callback<Tracks>() {
+            spotify.getArtistTopTrack(artistIDToSearch, option, new Callback<Tracks>() {
                 @Override
                 public void success(Tracks topTracks, Response response) {
-                    Log.d("Track success", topTracks.toString());
+                    //Log.d("Track success", topTracks.toString());
                     for (Track aTrack : topTracks.tracks) {
-                        Log.d("Track success", aTrack.toString());
+                        //Log.d("Track success", aTrack.toString());
+
+                        for (Image i : aTrack.album.images){
+                            Log.d("Track images", i+" size is "+i.height + " by " + i.width);
+                            Log.d("Track images URL", " "+i.url);
+                        }
+                        Log.d("Track images", " ");
+
                         artistTracksList.add(
-                                new TrackListItem(artistToSearch, aTrack.album.name, aTrack.album.images.get(0).url, aTrack.album.name, aTrack.preview_url));
+                                new TrackListItem(artistNameToSearch, aTrack.album.name, aTrack.album.images.get(0).url, aTrack.name, aTrack.preview_url));
                     }
 
                     runOnUiThread(new Runnable() {
