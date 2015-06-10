@@ -28,7 +28,7 @@ import retrofit.client.Response;
 /**
  * Fragment for SpotifySteamer activity
  */
-public class PlaceholderFragment extends Fragment {
+public class ArtlistListFragment extends Fragment {
 
     private SpotifyApi api;
     private SpotifyService spotify;
@@ -37,7 +37,7 @@ public class PlaceholderFragment extends Fragment {
     static String TAG;
     final String artistsBundleID = "artistsBundle";
 
-    public PlaceholderFragment() {
+    public ArtlistListFragment() {
         api = new SpotifyApi();
         spotify = api.getService();
         artistsList = new ArrayList<>();
@@ -51,7 +51,7 @@ public class PlaceholderFragment extends Fragment {
             artistsList = savedInstanceState.getParcelableArrayList(artistsBundleID);
         }
 
-        final View rootView = inflater.inflate(R.layout.fragment_placeholder, container, false);
+        final View rootView = inflater.inflate(R.layout.artist_list_fragment, container, false);
         final SearchView searchText = (SearchView) rootView.findViewById(R.id.editArtistName);
 
         final ArtistListAdapter mArtistsAdapter = new ArtistListAdapter(

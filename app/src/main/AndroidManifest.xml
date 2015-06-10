@@ -19,6 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".TrackListActivity"
             android:label="@string/title_activity_track_list"
@@ -27,14 +28,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.nano.karen.SpotifyStreamer.MainActivity" />
         </activity>
+
         <activity
             android:name="com.nano.karen.SpotifyStreamer.PlaybackActivity"
             android:label="@string/title_activity_playback"
             android:parentActivityName=".TrackListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.nano.karen.SpotifyStreamer.TrackListActivity" />
+                android:value=".TrackListActivity" />
         </activity>
+
     </application>
 
 </manifest>

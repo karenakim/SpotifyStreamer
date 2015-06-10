@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.nano.karen.SpotifyStreamer.R;
-
 
 public class MainActivity extends ActionBarActivity {
 
@@ -18,13 +16,13 @@ public class MainActivity extends ActionBarActivity {
         if (savedInstanceState == null) {
             /*
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new ArtlistListFragment())
                     .commit();
              */
 
            getFragmentManager()
                    .beginTransaction()
-                   .replace(R.id.container, new PlaceholderFragment(), PlaceholderFragment.TAG)
+                   .replace(R.id.container, new ArtlistListFragment(), ArtlistListFragment.TAG)
                    .commit();
         }
     }

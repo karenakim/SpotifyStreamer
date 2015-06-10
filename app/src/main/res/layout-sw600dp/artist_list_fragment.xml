@@ -16,13 +16,6 @@
         app:queryHint="@string/query_hint_artist"
         android:id="@+id/editArtistName" />
 
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@android:style/Widget.ProgressBar.Small"
-        android:layout_marginRight="5dp"
-        android:id="@+id/artistSearchProgress"/>
-
     <ListView
             android:id="@+id/listview_artists"
             android:layout_width="wrap_content"
