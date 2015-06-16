@@ -54,6 +54,8 @@ public class TrackListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         final View rootView = inflater.inflate(R.layout.track_list_fragment, container, false);
 
+        Log.d("two pane", "in TrackListFragment");
+
         Intent intent = getActivity().getIntent();
         final String artistIDToSearch = intent.getStringExtra("artistID");
         final String artistNameToSearch = intent.getStringExtra("artistName");

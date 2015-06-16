@@ -28,7 +28,7 @@ import retrofit.client.Response;
 /**
  * Fragment for SpotifySteamer activity
  */
-public class ArtlistListFragment extends Fragment {
+public class ArtistListFragment extends Fragment {
 
     private SpotifyApi api;
     private SpotifyService spotify;
@@ -37,7 +37,8 @@ public class ArtlistListFragment extends Fragment {
     static String TAG;
     final String artistsBundleID = "artistsBundle";
 
-    public ArtlistListFragment() {
+    public ArtistListFragment() {
+        Log.d("two pane", "new fragment!");
         api = new SpotifyApi();
         spotify = api.getService();
         artistsList = new ArrayList<>();
@@ -49,10 +50,17 @@ public class ArtlistListFragment extends Fragment {
 
         if (savedInstanceState != null) {
             artistsList = savedInstanceState.getParcelableArrayList(artistsBundleID);
+            Log.d("two pane", "saved is true");
+        } else {
+            Log.d("two pane", "saved is false");
         }
 
+        setRetainInstance(true);
+
         final View rootView = inflater.inflate(R.layout.artist_list_fragment, container, false);
+
         final SearchView searchText = (SearchView) rootView.findViewById(R.id.editArtistName);
+
 
         final ArtistListAdapter mArtistsAdapter = new ArtistListAdapter(
                 getActivity(), // The current context (this activity)
@@ -112,6 +120,7 @@ public class ArtlistListFragment extends Fragment {
                                 });
                             }
                         });
+                        searchText.clearFocus();
                         return true;
                     }
 
@@ -137,7 +146,11 @@ public class ArtlistListFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putParcelableArrayList(artistsBundleID, artistsList);
+        Log.d("two pane", "in saving");
+        if (!artistsList.isEmpty()) {
+            Log.d("two pane", "saving something");
+            savedInstanceState.putParcelableArrayList(artistsBundleID, artistsList);
+        }
         super.onSaveInstanceState(savedInstanceState);
     }
 

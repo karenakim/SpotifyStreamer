@@ -3,6 +3,7 @@ package com.nano.karen.SpotifyStreamer;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -12,10 +13,13 @@ public class TrackListActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d("two pane", "in TrackListActivity");
+
         if (savedInstanceState == null) {
             getFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.container, new TrackListFragment(), TrackListFragment.TAG)
+                    .replace(R.id.track_list_container, new TrackListFragment(), TrackListFragment.TAG)
                     .commit();
         }
     }
