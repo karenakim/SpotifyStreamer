@@ -20,21 +20,22 @@ public class MainActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTrackListFragment = new TrackListFragment();
-
         if (findViewById(R.id.track_list_container) != null) {
             // The detail container view will be present only in the large-screen layouts
             // (res/layout-sw600dp). If this view is present, then the activity should be
             // in two-pane mode.
             mTwoPane = true;
+
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
             if (savedInstanceState == null) {
+                mTrackListFragment = new TrackListFragment();
                 getFragmentManager()
                         .beginTransaction()
                         .replace(R.id.track_list_container, mTrackListFragment, TrackListFragment.TAG)
                         .commit();
+
             }
         } else {
             mTwoPane = false;
@@ -71,6 +72,8 @@ public class MainActivity extends ActionBarActivity
             // If it's two pane, we can assume the fragment
             // is already attached to the activity.
             // Don't forget to retain it's instance.
+            Log.d("two pane", mTrackListFragment.toString()+" is the track fragment in main activity");
+
             mTrackListFragment.selectArtist(artistId, artistName);
         }
         else {

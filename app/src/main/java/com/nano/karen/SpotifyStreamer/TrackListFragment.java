@@ -62,6 +62,7 @@ public class TrackListFragment extends Fragment {
         Log.d("two pane", "on Attach");
         super.onAttach(activity);
         mActivity = activity;
+        setRetainInstance(true);
     }
 
 
@@ -69,9 +70,6 @@ public class TrackListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mActivity = getActivity();
-        if (mActivity!=null)
-            Log.d("two pane", "activity not null here "+mActivity.toString());
 
         super.onCreate(savedInstanceState);
         rootView = inflater.inflate(R.layout.track_list_fragment, container, false);
@@ -93,7 +91,7 @@ public class TrackListFragment extends Fragment {
         final ListView listView = (ListView) rootView.findViewById(R.id.listview_tracks);
         listView.setAdapter(mTracksAdapter);
 
-        if (artistTracksList.isEmpty()) {
+        if (artistTracksList.isEmpty() && artistIDToSearch!=null) {
             Map<String, Object> option = new HashMap<>();
             option.put("country", "US");
             spotify.getArtistTopTrack(artistIDToSearch, option, new Callback<Tracks>() {
@@ -145,6 +143,13 @@ public class TrackListFragment extends Fragment {
             }
         });
 
+        mActivity = getActivity();
+        Log.d("two pane", "onCreateView");
+        if (mActivity!=null)
+            Log.d("two pane", "activity not null here!!! "+mActivity.toString());
+
+        Log.d("two pane", this.toString()+" is the track fragment in onCreateView");
+
         return rootView;
     }
 
@@ -156,10 +161,8 @@ public class TrackListFragment extends Fragment {
         artistIDToSearch = artistId;
         artistNameToSearch = artistName;
 
-        if (mActivity==null)
-            Log.d("two pane", "activity is null ");
-        else
-            Log.d("two pane", "activity is not null" + mActivity.toString());
+        Log.d("two pane", this.toString()+" is the track fragment in selectArtist");
+
 
         Map<String, Object> option = new HashMap<>();
         option.put("country", "US");
