@@ -1,6 +1,7 @@
 package com.nano.karen.SpotifyStreamer;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -41,31 +42,50 @@ public class TrackListFragment extends Fragment {
     static String TAG;
     final String tracksBundleID = "tracksBundle";
 
+    String artistIDToSearch;
+    String artistNameToSearch;
+
+    View rootView;
+    ListView listView;
+    TrackListAdapter mTracksAdapter;
+    Activity mActivity;
+
     public TrackListFragment() {
         api = new SpotifyApi();
         spotify = api.getService();
         artistTracksList = new ArrayList<>();
     }
 
+
+    @Override
+    public void onAttach(Activity activity) {
+        Log.d("two pane", "on Attach");
+        super.onAttach(activity);
+        mActivity = activity;
+    }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        super.onCreate(savedInstanceState);
-        final View rootView = inflater.inflate(R.layout.track_list_fragment, container, false);
+        mActivity = getActivity();
+        if (mActivity!=null)
+            Log.d("two pane", "activity not null here "+mActivity.toString());
 
-        Log.d("two pane", "in TrackListFragment");
+        super.onCreate(savedInstanceState);
+        rootView = inflater.inflate(R.layout.track_list_fragment, container, false);
 
         Intent intent = getActivity().getIntent();
-        final String artistIDToSearch = intent.getStringExtra("artistID");
-        final String artistNameToSearch = intent.getStringExtra("artistName");
+        artistIDToSearch = intent.getStringExtra("artistID");
+        artistNameToSearch = intent.getStringExtra("artistName");
 
 
         if (savedInstanceState != null) {
             artistTracksList = savedInstanceState.getParcelableArrayList(tracksBundleID);
         }
 
-        final TrackListAdapter mTracksAdapter = new TrackListAdapter(
+        mTracksAdapter = new TrackListAdapter(
                 getActivity(), // The current context (this activity)
                 R.layout.list_item_tracks, // The name of the layout ID.
                 artistTracksList);
@@ -83,11 +103,11 @@ public class TrackListFragment extends Fragment {
                     for (Track aTrack : topTracks.tracks) {
                         //Log.d("Track success", aTrack.toString());
 
+                        /*
                         for (Image i : aTrack.album.images) {
                             Log.d("Track images", i + " size is " + i.height + " by " + i.width);
                             Log.d("Track images URL", " " + i.url);
-                        }
-                        Log.d("Track images", " ");
+                        }*/
 
                         artistTracksList.add(
                                 new TrackListItem(artistNameToSearch, aTrack.album.name, aTrack.album.images.get(0).url, aTrack.name, aTrack.preview_url));
@@ -127,6 +147,69 @@ public class TrackListFragment extends Fragment {
 
         return rootView;
     }
+
+
+
+    // This method will be accessed by the activity.
+    public void selectArtist(String artistId, String artistName){
+        // Execute adapter and get your list updated.
+        artistIDToSearch = artistId;
+        artistNameToSearch = artistName;
+
+        if (mActivity==null)
+            Log.d("two pane", "activity is null ");
+        else
+            Log.d("two pane", "activity is not null" + mActivity.toString());
+
+        Map<String, Object> option = new HashMap<>();
+        option.put("country", "US");
+        spotify.getArtistTopTrack(artistIDToSearch, option, new Callback<Tracks>() {
+            @Override
+            public void success(Tracks topTracks, Response response) {
+                artistTracksList.clear();
+                for (Track aTrack : topTracks.tracks) {
+
+                    if (!aTrack.album.images.isEmpty()) {
+                        artistTracksList.add(
+                                new TrackListItem(artistNameToSearch, aTrack.album.name, aTrack.album.images.get(0).url, aTrack.name, aTrack.preview_url));
+                    } else { // no image, use default one
+                        artistTracksList.add(
+                                new TrackListItem(artistNameToSearch, aTrack.album.name, getString(R.string.default_artist_image), aTrack.name, aTrack.preview_url));
+                    }
+                }
+
+
+
+                // here is the problem, how could mActivity become null after screen rotation, while it is not in
+                // the onCreateView at line 74 just before this method is called.
+
+                if (mActivity==null)
+                    Log.d("two pane", "activity null ");
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTracksAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("Track failure", error.toString());
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast toast = Toast.makeText(getActivity(), "Track not found!", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                });
+            }
+        });
+        //}
+
+
+    }
+
 
 
     @Override

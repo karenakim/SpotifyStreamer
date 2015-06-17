@@ -1,8 +1,10 @@
 package com.nano.karen.SpotifyStreamer;
 
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,24 +27,40 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-/**
- * Fragment for SpotifySteamer activity
- */
 public class ArtistListFragment extends Fragment {
 
     private SpotifyApi api;
     private SpotifyService spotify;
     private ArrayList<ArtistListItem> artistsList;
 
+
+    OnArtistSelectedListener mCallback;
+
     static String TAG;
     final String artistsBundleID = "artistsBundle";
 
     public ArtistListFragment() {
-        Log.d("two pane", "new fragment!");
         api = new SpotifyApi();
         spotify = api.getService();
         artistsList = new ArrayList<>();
     }
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity
+        // has implemented the callback interface. If not,
+        // it throws an exception
+        try {
+            mCallback = (OnArtistSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnArtistSelectedListener");
+        }
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -106,6 +124,11 @@ public class ArtistListFragment extends Fragment {
                                         mArtistsAdapter.notifyDataSetChanged();
                                     }
                                 });
+
+                                // inform activitiy on new search result
+                                Log.d("two pane", "list initial tracks");
+                                mCallback.onArtistSelected(mArtistsAdapter.getItem(0).artistID, mArtistsAdapter.getItem(0).artistName);
+
                             }
 
                             @Override
@@ -134,10 +157,13 @@ public class ArtistListFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                /*  new let activity start the new activity
                 Intent intent = new Intent(getActivity(), TrackListActivity.class);
                 intent.putExtra("artistID", mArtistsAdapter.getItem(position).artistID);
                 intent.putExtra("artistName", mArtistsAdapter.getItem(position).artistName);
-                startActivity(intent);
+                startActivity(intent); */
+
+                mCallback.onArtistSelected(mArtistsAdapter.getItem(position).artistID, mArtistsAdapter.getItem(position).artistName);
             }
         });
         return rootView;
@@ -154,5 +180,8 @@ public class ArtistListFragment extends Fragment {
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    public interface OnArtistSelectedListener{
+        public void onArtistSelected(String artistID, String artistName);
+    };
 }
 

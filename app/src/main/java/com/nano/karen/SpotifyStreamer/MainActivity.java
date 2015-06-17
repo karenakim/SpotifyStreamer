@@ -1,6 +1,7 @@
 package com.nano.karen.SpotifyStreamer;
 
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,16 +9,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity
+    implements ArtistListFragment.OnArtistSelectedListener {
 
     private boolean mTwoPane;
+    TrackListFragment mTrackListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.d("two pane", "in main");
+        mTrackListFragment = new TrackListFragment();
 
         if (findViewById(R.id.track_list_container) != null) {
             // The detail container view will be present only in the large-screen layouts
@@ -30,7 +33,7 @@ public class MainActivity extends ActionBarActivity {
             if (savedInstanceState == null) {
                 getFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.track_list_container, new TrackListFragment(), TrackListFragment.TAG)
+                        .replace(R.id.track_list_container, mTrackListFragment, TrackListFragment.TAG)
                         .commit();
             }
         } else {
@@ -61,4 +64,23 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    public void onArtistSelected(String artistId, String artistName) {
+        if(mTwoPane){
+            // If it's two pane, we can assume the fragment
+            // is already attached to the activity.
+            // Don't forget to retain it's instance.
+            mTrackListFragment.selectArtist(artistId, artistName);
+        }
+        else {
+            // If there's no two pane, you can start your other
+            // activity.
+            Intent intent = new Intent(this, TrackListActivity.class);
+            intent.putExtra("artistID", artistId);
+            intent.putExtra("artistName", artistName);
+            startActivity(intent);
+        }
+
+    }
 }
