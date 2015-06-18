@@ -39,7 +39,7 @@ public class TrackListFragment extends Fragment {
     private SpotifyService spotify;
     private ArrayList<TrackListItem> artistTracksList;
 
-    static String TAG;
+    static String TAG = "TrackListFragment";
     final String tracksBundleID = "tracksBundle";
 
     String artistIDToSearch;
@@ -48,23 +48,20 @@ public class TrackListFragment extends Fragment {
     View rootView;
     ListView listView;
     TrackListAdapter mTracksAdapter;
-    Activity mActivity;
 
     public TrackListFragment() {
         api = new SpotifyApi();
         spotify = api.getService();
         artistTracksList = new ArrayList<>();
     }
-
+    
 
     @Override
-    public void onAttach(Activity activity) {
-        Log.d("two pane", "on Attach");
-        super.onAttach(activity);
-        mActivity = activity;
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // retain this fragment
         setRetainInstance(true);
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -143,12 +140,6 @@ public class TrackListFragment extends Fragment {
             }
         });
 
-        mActivity = getActivity();
-        Log.d("two pane", "onCreateView");
-        if (mActivity!=null)
-            Log.d("two pane", "activity not null here!!! "+mActivity.toString());
-
-        Log.d("two pane", this.toString()+" is the track fragment in onCreateView");
 
         return rootView;
     }
@@ -181,14 +172,7 @@ public class TrackListFragment extends Fragment {
                     }
                 }
 
-
-
-                // here is the problem, how could mActivity become null after screen rotation, while it is not in
-                // the onCreateView at line 74 just before this method is called.
-
-                if (mActivity==null)
-                    Log.d("two pane", "activity null ");
-                mActivity.runOnUiThread(new Runnable() {
+                getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mTracksAdapter.notifyDataSetChanged();

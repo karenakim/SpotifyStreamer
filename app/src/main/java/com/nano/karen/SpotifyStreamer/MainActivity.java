@@ -1,6 +1,7 @@
 package com.nano.karen.SpotifyStreamer;
 
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -10,10 +11,10 @@ import android.view.MenuItem;
 
 
 public class MainActivity extends ActionBarActivity
-    implements ArtistListFragment.OnArtistSelectedListener {
+        implements ArtistListFragment.OnArtistSelectedListener {
 
     private boolean mTwoPane;
-    TrackListFragment mTrackListFragment;
+    private TrackListFragment mTrackListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,18 +22,15 @@ public class MainActivity extends ActionBarActivity
         setContentView(R.layout.activity_main);
 
         if (findViewById(R.id.track_list_container) != null) {
-            // The detail container view will be present only in the large-screen layouts
-            // (res/layout-sw600dp). If this view is present, then the activity should be
-            // in two-pane mode.
             mTwoPane = true;
 
-            // In two-pane mode, show the detail view in this activity by
-            // adding or replacing the detail fragment using a
-            // fragment transaction.
-            if (savedInstanceState == null) {
+            FragmentManager fm = getFragmentManager();
+            mTrackListFragment = (TrackListFragment) fm.findFragmentByTag(TrackListFragment.TAG);
+
+            if ( mTrackListFragment == null) {
+                Log.d("two pane", "new tracklistfragment created");
                 mTrackListFragment = new TrackListFragment();
-                getFragmentManager()
-                        .beginTransaction()
+                fm.beginTransaction()
                         .replace(R.id.track_list_container, mTrackListFragment, TrackListFragment.TAG)
                         .commit();
 
@@ -65,20 +63,11 @@ public class MainActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
     public void onArtistSelected(String artistId, String artistName) {
         if(mTwoPane){
-            // If it's two pane, we can assume the fragment
-            // is already attached to the activity.
-            // Don't forget to retain it's instance.
-            Log.d("two pane", mTrackListFragment.toString()+" is the track fragment in main activity");
-
             mTrackListFragment.selectArtist(artistId, artistName);
-        }
-        else {
-            // If there's no two pane, you can start your other
-            // activity.
+        } else {
             Intent intent = new Intent(this, TrackListActivity.class);
             intent.putExtra("artistID", artistId);
             intent.putExtra("artistName", artistName);
