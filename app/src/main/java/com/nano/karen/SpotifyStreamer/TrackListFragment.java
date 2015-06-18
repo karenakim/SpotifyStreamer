@@ -1,13 +1,13 @@
 package com.nano.karen.SpotifyStreamer;
 
 
-import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +15,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.nano.karen.SpotifyStreamer.R;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.Callback;
@@ -133,10 +130,20 @@ public class TrackListFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                /*
                 Intent intent = new Intent(getActivity(), PlaybackActivity.class);
-                //intent.putExtra(Intent.EXTRA_TEXT, mTracksAdapter.getItem(position).trackPreviewURL);
                 intent.putExtra("my parcel", mTracksAdapter.getItem(position));
-                startActivity(intent);
+                startActivity(intent); */
+
+                // start the playback dialog with a bundle instead
+                FragmentTransaction fm = getFragmentManager().beginTransaction();
+                DialogFragment playbackDialog = new PlaybackDialogFragment();
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("my parcel", mTracksAdapter.getItem(position));
+                playbackDialog.setArguments(bundle);
+
+                playbackDialog.show(fm, "Sample Fragment");
             }
         });
 

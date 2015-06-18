@@ -19,7 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".TrackListActivity"
             android:label="@string/title_activity_track_list"
@@ -28,9 +27,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.nano.karen.SpotifyStreamer.MainActivity" />
         </activity>
-
         <activity
-            android:name="com.nano.karen.SpotifyStreamer.PlaybackActivity"
+            android:name=".PlaybackActivity"
             android:label="@string/title_activity_playback"
             android:parentActivityName=".TrackListActivity" >
             <meta-data
@@ -38,6 +36,11 @@
                 android:value=".TrackListActivity" />
         </activity>
 
+        <service
+            android:name="com.nano.karen.spotifystreamer.StreamerService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>

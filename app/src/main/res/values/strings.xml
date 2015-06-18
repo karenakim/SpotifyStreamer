@@ -6,7 +6,7 @@
     <string name="title_activity_track_list">Top Tracks</string>
     <string name="query_hint_artist">Name of Artist</string>
     <string name="default_artist_image">http://i.imgur.com/DvpvklR.png</string>
-    <string name="title_activity_playback">PlaybackActivity</string>
+    <string name="title_activity_playback">Playing</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>

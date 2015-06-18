@@ -1,16 +1,14 @@
 package com.nano.karen.SpotifyStreamer;
 
-import android.content.Intent;
+import android.app.DialogFragment;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -21,10 +19,10 @@ import java.io.IOException;
 
 import static android.view.View.VISIBLE;
 
-public class PlaybackActivity extends ActionBarActivity {
+public class PlaybackDialogFragment extends DialogFragment {
 
     MediaPlayer mediaPlayer;
-
+    TrackListItem mTrack;
     private TextView artistNameView;
     private TextView albumNameView;
     private ImageView albumImageView;
@@ -38,29 +36,40 @@ public class PlaybackActivity extends ActionBarActivity {
     private Drawable mPauseDrawable;
     private Drawable mPlayDrawable;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_playback);
 
-        Intent intent = getIntent();
-        TrackListItem mTrack = intent.getExtras().getParcelable("my parcel");
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         mediaPlayer = new MediaPlayer();
 
-        artistNameView = (TextView) findViewById(R.id.playback_artist_name);
-        albumNameView = (TextView) findViewById(R.id.playback_album_name);
-        albumImageView = (ImageView) findViewById(R.id.playback_album_image);
-        trackNameView = (TextView) findViewById(R.id.playback_track_name);
-        mStart = (TextView) findViewById(R.id.startText);
-        mEnd = (TextView) findViewById(R.id.endText);
-        mSeekbar = (SeekBar) findViewById(R.id.seekBar);
-        mPlayPause = (ImageView) findViewById(R.id.playback_play_pause);
-        mSkipNext = (ImageView) findViewById(R.id.playback_next);
-        mSkipPrev = (ImageView) findViewById(R.id.playback_prev);
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            mTrack  = bundle.getParcelable("my parcel");
+        }
 
-        mPauseDrawable = getDrawable(android.R.drawable.ic_media_pause);
-        mPlayDrawable = getDrawable(android.R.drawable.ic_media_play);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.playback_dialog, container, false);
+        getDialog().setTitle("Now playing");
+
+        artistNameView = (TextView) rootView.findViewById(R.id.playback_artist_name);
+        albumNameView = (TextView) rootView.findViewById(R.id.playback_album_name);
+        albumImageView = (ImageView) rootView.findViewById(R.id.playback_album_image);
+        trackNameView = (TextView) rootView.findViewById(R.id.playback_track_name);
+
+        mStart = (TextView) rootView.findViewById(R.id.startText);
+        mEnd = (TextView) rootView.findViewById(R.id.endText);
+        mSeekbar = (SeekBar) rootView.findViewById(R.id.seekBar);
+        mPlayPause = (ImageView) rootView.findViewById(R.id.playback_play_pause);
+        mSkipNext = (ImageView) rootView.findViewById(R.id.playback_next);
+        mSkipPrev = (ImageView) rootView.findViewById(R.id.playback_prev);
+
+        mPauseDrawable = getActivity().getDrawable(android.R.drawable.ic_media_pause);
+        mPlayDrawable = getActivity().getDrawable(android.R.drawable.ic_media_play);
 
         artistNameView.setText(mTrack.artistName);
         trackNameView.setText(mTrack.trackName);
@@ -68,17 +77,19 @@ public class PlaybackActivity extends ActionBarActivity {
 
 
         if (!mTrack.trackImageURL.equals("")) {
-            Picasso.with(this)
+            Picasso.with(getActivity())
                     .load(mTrack.trackImageURL)
                     .resize(600, 600)
                     .error(R.drawable.dragon) // default image
                     .into(albumImageView);
         } else {
-            Picasso.with(this)
+            Picasso.with(getActivity())
                     .load(R.drawable.dragon)
                     .resize(600, 600)
                     .into(albumImageView);
         }
+
+
 
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
@@ -94,6 +105,7 @@ public class PlaybackActivity extends ActionBarActivity {
             e.printStackTrace();
             Log.e("Playback", "bad stream");
         }
+
 
         int duration = mediaPlayer.getDuration();
         mSeekbar.setMax(duration);
@@ -142,32 +154,17 @@ public class PlaybackActivity extends ActionBarActivity {
                 }
             }
         });
+
+
+
+        return rootView;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_playback, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onStop() {
         super.onStop();
         mediaPlayer.stop();
     }
+
 }
