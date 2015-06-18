@@ -34,10 +34,17 @@ public class ArtistListFragment extends Fragment {
     private ArrayList<ArtistListItem> artistsList;
 
 
+    private View rootView;
+    private SearchView searchText;
+    private ListView listView;
+
     OnArtistSelectedListener mCallback;
 
-    static String TAG;
+    ArtistListAdapter mArtistsAdapter;
+
+    static String TAG = "ArtistListFragment";
     final String artistsBundleID = "artistsBundle";
+
 
     public ArtistListFragment() {
         api = new SpotifyApi();
@@ -45,14 +52,10 @@ public class ArtistListFragment extends Fragment {
         artistsList = new ArrayList<>();
     }
 
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        // This makes sure that the container activity
-        // has implemented the callback interface. If not,
-        // it throws an exception
         try {
             mCallback = (OnArtistSelectedListener) activity;
         } catch (ClassCastException e) {
@@ -68,24 +71,20 @@ public class ArtistListFragment extends Fragment {
 
         if (savedInstanceState != null) {
             artistsList = savedInstanceState.getParcelableArrayList(artistsBundleID);
-            Log.d("two pane", "saved is true");
-        } else {
-            Log.d("two pane", "saved is false");
+            if (artistsList==null)
+                artistsList = new ArrayList<>();
         }
 
         setRetainInstance(true);
+        rootView = inflater.inflate(R.layout.artist_list_fragment, container, false);
+        searchText = (SearchView) rootView.findViewById(R.id.editArtistName);
 
-        final View rootView = inflater.inflate(R.layout.artist_list_fragment, container, false);
-
-        final SearchView searchText = (SearchView) rootView.findViewById(R.id.editArtistName);
-
-
-        final ArtistListAdapter mArtistsAdapter = new ArtistListAdapter(
+        mArtistsAdapter = new ArtistListAdapter(
                 getActivity(), // The current context (this activity)
                 R.layout.list_item_artist, // The name of the layout ID.
                 artistsList);
 
-        final ListView listView = (ListView) rootView.findViewById(R.id.listview_artists);
+        listView = (ListView) rootView.findViewById(R.id.listview_artists);
         listView.setAdapter(mArtistsAdapter);
 
         searchText.setOnQueryTextListener(
@@ -162,7 +161,7 @@ public class ArtistListFragment extends Fragment {
                 intent.putExtra("artistID", mArtistsAdapter.getItem(position).artistID);
                 intent.putExtra("artistName", mArtistsAdapter.getItem(position).artistName);
                 startActivity(intent); */
-
+                // use call back instead now
                 mCallback.onArtistSelected(mArtistsAdapter.getItem(position).artistID, mArtistsAdapter.getItem(position).artistName);
             }
         });
