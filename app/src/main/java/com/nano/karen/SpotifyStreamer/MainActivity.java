@@ -2,12 +2,15 @@ package com.nano.karen.SpotifyStreamer;
 
 
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -103,7 +106,21 @@ public class MainActivity extends ActionBarActivity
         Bundle bundle = new Bundle();
         bundle.putParcelable("my parcel", curTrack);
         playbackDialog.setArguments(bundle);
-        playbackDialog.show(getFragmentManager(), "playback dialog");
+
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+
+        /*Fragment prev = getFragmentManager().findFragmentByTag(PlaybackDialogFragment.TAG);
+        if (prev != null) {
+            ft.remove(prev);
+        }*/
+
+        ft.addToBackStack(null); // not working, still have the fragment on stack
+
+        // why the next two lines won't work? They should be equivallent to the show call below, right?
+        //ft.replace(R.id.container, playbackDialog, PlaybackDialogFragment.TAG);
+        //ft.commit();
+        playbackDialog.show(ft, PlaybackDialogFragment.TAG);
+
 
         mService.play(curTrack.trackPreviewURL);
     }
@@ -129,4 +146,8 @@ public class MainActivity extends ActionBarActivity
         }
     };
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }

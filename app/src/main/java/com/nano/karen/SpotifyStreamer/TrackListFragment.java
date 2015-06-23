@@ -40,7 +40,7 @@ public class TrackListFragment extends Fragment {
 
     static String TAG = "TrackListFragment";
     final String tracksBundleID = "tracksBundle";
-    final int MAX_TRACK = 10;
+    int MAX_TRACK;
 
     private String artistIDToSearch;
     private String artistNameToSearch;
@@ -80,7 +80,6 @@ public class TrackListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
         super.onCreate(savedInstanceState);
         rootView = inflater.inflate(R.layout.track_list_fragment, container, false);
 
@@ -100,17 +99,17 @@ public class TrackListFragment extends Fragment {
         final ListView listView = (ListView) rootView.findViewById(R.id.listview_tracks);
         listView.setAdapter(mTracksAdapter);
 
-        if (artistTracksList.isEmpty() && artistIDToSearch!=null) {
+ /*       if (artistTracksList.isEmpty() && artistIDToSearch!=null) {
             Map<String, Object> option = new HashMap<>();
             option.put("country", "US");
             spotify.getArtistTopTrack(artistIDToSearch, option, new Callback<Tracks>() {
                 @Override
                 public void success(Tracks topTracks, Response response) {
+                    MAX_TRACK = topTracks.tracks.size();
                     for (Track aTrack : topTracks.tracks) {
                         artistTracksList.add(
                                 new TrackListItem(artistNameToSearch, aTrack.album.name, aTrack.album.images.get(0).url, aTrack.name, aTrack.preview_url));
                     }
-
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -131,7 +130,7 @@ public class TrackListFragment extends Fragment {
                     });
                 }
             });
-        }
+        }*/
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -150,6 +149,8 @@ public class TrackListFragment extends Fragment {
                 //try 3:  do a callback on parent activity
                 mCallback.onTrackSelected(mTracksAdapter.getItem(position));
                 curTrackIndex = position;
+                Log.d("current track", position+"");
+                Log.d("current track max", MAX_TRACK+"");
             }
         });
 
@@ -159,7 +160,7 @@ public class TrackListFragment extends Fragment {
 
     // This method will be accessed by the activity.
     public TrackListItem selectNextTrack(){
-        if (curTrackIndex==MAX_TRACK) // wrap to first track
+        if (curTrackIndex==MAX_TRACK-1) // wrap to first track
             curTrackIndex = 0;
         else
             curTrackIndex++;
@@ -170,7 +171,7 @@ public class TrackListFragment extends Fragment {
     // This method will be accessed by the activity.
     public TrackListItem selectPrevTrack(){
         if (curTrackIndex==0) // wrap to first track
-            curTrackIndex = MAX_TRACK;
+            curTrackIndex = MAX_TRACK-1;
         else
             curTrackIndex--;
 
@@ -191,7 +192,7 @@ public class TrackListFragment extends Fragment {
             public void success(Tracks topTracks, Response response) {
                 artistTracksList.clear();
                 for (Track aTrack : topTracks.tracks) {
-
+                    MAX_TRACK = topTracks.tracks.size();
                     if (!aTrack.album.images.isEmpty()) {
                         artistTracksList.add(
                                 new TrackListItem(artistNameToSearch, aTrack.album.name, aTrack.album.images.get(0).url, aTrack.name, aTrack.preview_url));
@@ -223,7 +224,6 @@ public class TrackListFragment extends Fragment {
         });
 
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

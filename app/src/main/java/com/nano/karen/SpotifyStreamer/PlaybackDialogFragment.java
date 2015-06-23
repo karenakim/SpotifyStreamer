@@ -39,6 +39,8 @@ public class PlaybackDialogFragment extends DialogFragment {
     private OnPlayListener mCallback;
     private  StreamerService service;
 
+    static String TAG = "PlaybackDialogFragment";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -3,6 +3,7 @@ package com.nano.karen.SpotifyStreamer;
 
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -48,7 +49,7 @@ public class TrackListActivity extends ActionBarActivity
 
     public void playTrack(String trackURL){
 
-           // TODO: 6/23/15  copy logic from main activity
+           // TODO: 6/23/15  need logic from main activity
     }
 
 
@@ -59,8 +60,20 @@ public class TrackListActivity extends ActionBarActivity
         Bundle bundle = new Bundle();
         bundle.putParcelable("my parcel", curTrack);
         playbackDialog.setArguments(bundle);
-        playbackDialog.show(getFragmentManager(), "playback dialog");
 
+        android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.addToBackStack(null);
+        //ft.commit();
+        playbackDialog.show(ft, "playback dialog");
+
+
+        //playbackDialog.show(getFragmentManager(), "playback dialog");
+
+        /*FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_playback_dialog, playbackDialog, PlaybackDialogFragment.TAG);
+        transaction.addToBackStack(null);
+        transaction.commit();
+*/
         playTrack(curTrack.trackPreviewURL);
 
     }
