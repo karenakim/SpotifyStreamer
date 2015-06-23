@@ -1,6 +1,7 @@
 package com.nano.karen.SpotifyStreamer;
 
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -35,23 +36,38 @@ public class TrackListFragment extends Fragment {
     private SpotifyApi api;
     private SpotifyService spotify;
     private ArrayList<TrackListItem> artistTracksList;
+    private int curTrackIndex;
 
     static String TAG = "TrackListFragment";
     final String tracksBundleID = "tracksBundle";
+    final int MAX_TRACK = 10;
 
-    String artistIDToSearch;
-    String artistNameToSearch;
+    private String artistIDToSearch;
+    private String artistNameToSearch;
 
-    View rootView;
-    ListView listView;
-    TrackListAdapter mTracksAdapter;
+    private View rootView;
+    private ListView listView;
+    private TrackListAdapter mTracksAdapter;
+
+    private OnTrackSelectedListener mCallback;
 
     public TrackListFragment() {
         api = new SpotifyApi();
         spotify = api.getService();
         artistTracksList = new ArrayList<>();
     }
-    
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            mCallback = (OnTrackSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnTrackSelectedListener");
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,7 +88,6 @@ public class TrackListFragment extends Fragment {
         artistIDToSearch = intent.getStringExtra("artistID");
         artistNameToSearch = intent.getStringExtra("artistName");
 
-
         if (savedInstanceState != null) {
             artistTracksList = savedInstanceState.getParcelableArrayList(tracksBundleID);
         }
@@ -91,16 +106,7 @@ public class TrackListFragment extends Fragment {
             spotify.getArtistTopTrack(artistIDToSearch, option, new Callback<Tracks>() {
                 @Override
                 public void success(Tracks topTracks, Response response) {
-                    //Log.d("Track success", topTracks.toString());
                     for (Track aTrack : topTracks.tracks) {
-                        //Log.d("Track success", aTrack.toString());
-
-                        /*
-                        for (Image i : aTrack.album.images) {
-                            Log.d("Track images", i + " size is " + i.height + " by " + i.width);
-                            Log.d("Track images URL", " " + i.url);
-                        }*/
-
                         artistTracksList.add(
                                 new TrackListItem(artistNameToSearch, aTrack.album.name, aTrack.album.images.get(0).url, aTrack.name, aTrack.preview_url));
                     }
@@ -130,17 +136,20 @@ public class TrackListFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Intent intent = new Intent(getActivity(), PlaybackActivity.class);
+                // try 1:
+                /*Intent intent = new Intent(getActivity(), PlaybackActivity.class);
                 intent.putExtra("my parcel", mTracksAdapter.getItem(position));
-                startActivity(intent);
+                startActivity(intent);*/
 
-                // start the playback dialog with a bundle instead
-
+                // try 2: start the playback dialog with a bundle instead
                 /*DialogFragment playbackDialog = new PlaybackDialogFragment();
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("my parcel", mTracksAdapter.getItem(position));
                 playbackDialog.setArguments(bundle);
                 playbackDialog.show(getFragmentManager(), "playback dialog");*/
+                //try 3:  do a callback on parent activity
+                mCallback.onTrackSelected(mTracksAdapter.getItem(position));
+                curTrackIndex = position;
             }
         });
 
@@ -148,17 +157,33 @@ public class TrackListFragment extends Fragment {
         return rootView;
     }
 
+    // This method will be accessed by the activity.
+    public TrackListItem selectNextTrack(){
+        if (curTrackIndex==MAX_TRACK) // wrap to first track
+            curTrackIndex = 0;
+        else
+            curTrackIndex++;
 
+        return mTracksAdapter.getItem(curTrackIndex);
+    }
+
+    // This method will be accessed by the activity.
+    public TrackListItem selectPrevTrack(){
+        if (curTrackIndex==0) // wrap to first track
+            curTrackIndex = MAX_TRACK;
+        else
+            curTrackIndex--;
+
+        return mTracksAdapter.getItem(curTrackIndex);
+    }
 
     // This method will be accessed by the activity.
     public void selectArtist(String artistId, String artistName){
-        // Execute adapter and get your list updated.
+        // Execute adapter and get list updated.
         artistIDToSearch = artistId;
         artistNameToSearch = artistName;
 
-        Log.d("two pane", this.toString()+" is the track fragment in selectArtist");
-
-
+        //Log.d("two pane", this.toString()+" is the track fragment in selectArtist");
         Map<String, Object> option = new HashMap<>();
         option.put("country", "US");
         spotify.getArtistTopTrack(artistIDToSearch, option, new Callback<Tracks>() {
@@ -196,11 +221,8 @@ public class TrackListFragment extends Fragment {
                 });
             }
         });
-        //}
-
 
     }
-
 
 
     @Override
@@ -224,5 +246,8 @@ public class TrackListFragment extends Fragment {
     }
 
 
+    public interface OnTrackSelectedListener{
+        public void onTrackSelected(TrackListItem curTrack);
+    };
 
 }

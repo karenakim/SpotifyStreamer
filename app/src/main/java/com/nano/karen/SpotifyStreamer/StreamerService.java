@@ -32,7 +32,7 @@ public class StreamerService extends Service implements MediaPlayer.OnPreparedLi
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        mp.start();
+        //mp.start();
 
     }
 
@@ -50,42 +50,55 @@ public class StreamerService extends Service implements MediaPlayer.OnPreparedLi
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-       /* if (intent.getAction().equals(ACTION_PLAY)) {
-            Toast.makeText(this, "Service started with intent", Toast.LENGTH_LONG).show();
-            mMediaPlayer = new MediaPlayer();
-
-            mMediaPlayer.setOnPreparedListener(this);
-            mMediaPlayer.prepareAsync(); // prepare async to not block main thread
-        }*/
-
-        Toast.makeText(this, "Service started without intent", Toast.LENGTH_LONG).show();
         return flags;
     }
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "Service destroyed", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Service destroyed", Toast.LENGTH_LONG).show();
         super.onDestroy();
     }
 
-    public void playSong(){
-        Toast.makeText(this, "Service bound", Toast.LENGTH_LONG).show();
 
-        //mMediaPlayer.release();
+    public void play(String track) {
+
+        mMediaPlayer.reset();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            mMediaPlayer.setDataSource(getString(R.string.default_artist_track));
+            mMediaPlayer.setDataSource(track);
             mMediaPlayer.prepare();
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             Log.e("Playback", "bad arguments");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Log.e("Playback", "bad stream");
         }
         mMediaPlayer.start();
     }
+
+    public int getDuration() {
+        return mMediaPlayer.getDuration();
+    }
+
+    public int getCurrentPosition() {
+        return mMediaPlayer.getCurrentPosition();
+    }
+
+    public boolean isPlaying() {
+        return mMediaPlayer.isPlaying();
+    }
+
+    public void pause() {
+        mMediaPlayer.pause();
+    }
+
+    public void start() {
+        mMediaPlayer.start();
+    }
+
+    public void seekTo(int progress) {
+        mMediaPlayer.seekTo(progress);
+    }
 }
+

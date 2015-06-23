@@ -27,14 +27,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.nano.karen.SpotifyStreamer.MainActivity" />
         </activity>
-        <activity
-            android:name=".PlaybackActivity"
-            android:label="@string/title_activity_playback"
-            android:parentActivityName=".TrackListActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".TrackListActivity" />
-        </activity>
 
         <service
             android:name=".StreamerService"

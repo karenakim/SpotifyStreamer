@@ -1,13 +1,15 @@
 package com.nano.karen.SpotifyStreamer;
 
 
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class TrackListActivity extends ActionBarActivity {
+public class TrackListActivity extends ActionBarActivity
+        implements TrackListFragment.OnTrackSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +48,20 @@ public class TrackListActivity extends ActionBarActivity {
 
     public void playTrack(String trackURL){
 
-
-
+           // TODO: 6/23/15  copy logic from main activity
     }
 
 
+    @Override
+    public void onTrackSelected(TrackListItem curTrack) {
 
+        DialogFragment playbackDialog = new PlaybackDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("my parcel", curTrack);
+        playbackDialog.setArguments(bundle);
+        playbackDialog.show(getFragmentManager(), "playback dialog");
+
+        playTrack(curTrack.trackPreviewURL);
+
+    }
 }

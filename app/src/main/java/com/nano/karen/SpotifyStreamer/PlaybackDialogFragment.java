@@ -1,5 +1,6 @@
 package com.nano.karen.SpotifyStreamer;
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -21,7 +22,6 @@ import static android.view.View.VISIBLE;
 
 public class PlaybackDialogFragment extends DialogFragment {
 
-    MediaPlayer mMediaPlayer;
     TrackListItem mTrack;
     private TextView artistNameView;
     private TextView albumNameView;
@@ -36,24 +36,34 @@ public class PlaybackDialogFragment extends DialogFragment {
     private Drawable mPauseDrawable;
     private Drawable mPlayDrawable;
 
-
+    private OnPlayListener mCallback;
+    private  StreamerService service;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mMediaPlayer = new MediaPlayer();
-
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             mTrack  = bundle.getParcelable("my parcel");
         }
-        
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            mCallback = (OnPlayListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnPlayListener");
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.playback_dialog, container, false);
         getDialog().setTitle("Now playing");
 
@@ -76,7 +86,6 @@ public class PlaybackDialogFragment extends DialogFragment {
         trackNameView.setText(mTrack.trackName);
         albumNameView.setText(mTrack.albumName);
 
-
         if (!mTrack.trackImageURL.equals("")) {
             Picasso.with(getActivity())
                     .load(mTrack.trackImageURL)
@@ -90,46 +99,27 @@ public class PlaybackDialogFragment extends DialogFragment {
                     .into(albumImageView);
         }
 
-
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            //mMediaPlayer.setDataSource(trackURL);
-            mMediaPlayer.setDataSource(mTrack.trackPreviewURL);
-            Log.d("myservice", mTrack.trackPreviewURL);
-            mMediaPlayer.prepare();
-        }
-        catch (IllegalArgumentException e){
-            e.printStackTrace();
-            Log.e("Playback", "bad arguments");
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            Log.e("Playback", "bad stream");
-        }
-
-
-        int duration = mMediaPlayer.getDuration();
+        service = mCallback.getStreamerService();
+        int duration = service.getDuration();
         mSeekbar.setMax(duration);
         mStart.setText("0.00");
         mEnd.setText(String.format("%.2f", duration / 100000.0));
-        mSeekbar.setProgress(mMediaPlayer.getCurrentPosition());
+        mSeekbar.setProgress(service.getCurrentPosition());
         mSeekbar.postDelayed(
                 new Runnable() {
                     @Override
                     public void run() {
-                        mSeekbar.setProgress(mMediaPlayer.getCurrentPosition());
+                        mSeekbar.setProgress(service.getCurrentPosition());
                         mSeekbar.postDelayed(this, 500);
                     }
                 }, 1000);
 
 
-        //mMediaPlayer.start();
-
         mSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser)
-                    mMediaPlayer.seekTo(progress);
+                    service.seekTo(progress);
             }
 
             @Override
@@ -144,18 +134,32 @@ public class PlaybackDialogFragment extends DialogFragment {
         mPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.pause();
+                if (service.isPlaying()) {
+                    service.pause();
                     mPlayPause.setVisibility(VISIBLE);
                     mPlayPause.setImageDrawable(mPlayDrawable);
                 } else {
-                    mMediaPlayer.start();
+                    service.start();
                     mPlayPause.setVisibility(VISIBLE);
                     mPlayPause.setImageDrawable(mPauseDrawable);
                 }
             }
         });
+
+        mSkipNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.playNext();
+            }
+        });
+
+        mSkipPrev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.playPrev();
+            }
+        });
+
         return rootView;
     }
 
@@ -166,11 +170,22 @@ public class PlaybackDialogFragment extends DialogFragment {
         //savedInstanceState.putInt("currentTrackPosition", mMediaPlayer.getCurrentPosition());
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        service.pause();
+    }
 
     @Override
     public void onStop() {
         super.onStop();
-        mMediaPlayer.stop();
+        //mMediaPlayer.stop();
     }
+
+    public interface OnPlayListener{
+        public StreamerService getStreamerService();
+        public void playNext();
+        public void playPrev();
+    };
 
 }
