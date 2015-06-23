@@ -14,8 +14,6 @@ public class TrackListActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.d("two pane", "in TrackListActivity");
-
         if (savedInstanceState == null) {
             getFragmentManager()
                     .beginTransaction()
@@ -45,5 +43,13 @@ public class TrackListActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void playTrack(String trackURL){
+
+
+
+    }
+
+
 
 }

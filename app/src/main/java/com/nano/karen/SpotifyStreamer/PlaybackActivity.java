@@ -1,11 +1,16 @@
 package com.nano.karen.SpotifyStreamer;
 
+import android.app.DialogFragment;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -23,125 +28,49 @@ import static android.view.View.VISIBLE;
 
 public class PlaybackActivity extends ActionBarActivity {
 
-    MediaPlayer mediaPlayer;
 
-    private TextView artistNameView;
-    private TextView albumNameView;
-    private ImageView albumImageView;
-    private TextView trackNameView;
-    private TextView mStart;
-    private TextView mEnd;
-    private SeekBar mSeekbar;
-    private ImageView mSkipPrev;
-    private ImageView mSkipNext;
-    private ImageView mPlayPause;
-    private Drawable mPauseDrawable;
-    private Drawable mPlayDrawable;
+    StreamerService mService;
+    boolean mBound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_playback);
+        //setContentView(R.layout.activity_playback);
 
         Intent intent = getIntent();
         TrackListItem mTrack = intent.getExtras().getParcelable("my parcel");
 
-        mediaPlayer = new MediaPlayer();
+        // start fragment
+        DialogFragment playbackDialog = new PlaybackDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("my parcel", mTrack);
+        playbackDialog.setArguments(bundle);
+        playbackDialog.show(getFragmentManager(), "playback dialog");
 
-        artistNameView = (TextView) findViewById(R.id.playback_artist_name);
-        albumNameView = (TextView) findViewById(R.id.playback_album_name);
-        albumImageView = (ImageView) findViewById(R.id.playback_album_image);
-        trackNameView = (TextView) findViewById(R.id.playback_track_name);
-        mStart = (TextView) findViewById(R.id.startText);
-        mEnd = (TextView) findViewById(R.id.endText);
-        mSeekbar = (SeekBar) findViewById(R.id.seekBar);
-        mPlayPause = (ImageView) findViewById(R.id.playback_play_pause);
-        mSkipNext = (ImageView) findViewById(R.id.playback_next);
-        mSkipPrev = (ImageView) findViewById(R.id.playback_prev);
+        // experiment with service
 
-        mPauseDrawable = getDrawable(android.R.drawable.ic_media_pause);
-        mPlayDrawable = getDrawable(android.R.drawable.ic_media_play);
+        Intent sintent = new Intent(this, StreamerService.class);
 
-        artistNameView.setText(mTrack.artistName);
-        trackNameView.setText(mTrack.trackName);
-        albumNameView.setText(mTrack.albumName);
+        if (mService==null)
+            Log.d("myservice", "null");
 
+        bindService(sintent, mConnection, Context.BIND_AUTO_CREATE);
 
-        if (!mTrack.trackImageURL.equals("")) {
-            Picasso.with(this)
-                    .load(mTrack.trackImageURL)
-                    .resize(600, 600)
-                    .error(R.drawable.dragon) // default image
-                    .into(albumImageView);
-        } else {
-            Picasso.with(this)
-                    .load(R.drawable.dragon)
-                    .resize(600, 600)
-                    .into(albumImageView);
-        }
+        if (mService==null)
+            Log.d("myservice", "null");
 
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            //mediaPlayer.setDataSource(trackURL);
-            mediaPlayer.setDataSource(mTrack.trackPreviewURL);
-            mediaPlayer.prepare();
-        }
-        catch (IllegalArgumentException e){
-            e.printStackTrace();
-            Log.e("Playback", "bad arguments");
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            Log.e("Playback", "bad stream");
-        }
+        //startTrack();
 
-        int duration = mediaPlayer.getDuration();
-        mSeekbar.setMax(duration);
-        mStart.setText("0.00");
-        mEnd.setText(String.format("%.2f", duration / 100000.0));
-        mSeekbar.setProgress(mediaPlayer.getCurrentPosition());
-        mSeekbar.postDelayed(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        mSeekbar.setProgress(mediaPlayer.getCurrentPosition());
-                        mSeekbar.postDelayed(this, 500);
-                    }
-                }, 1000);
-        mediaPlayer.start();
+    }
 
 
-        mSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser)
-                    mediaPlayer.seekTo(progress);
-            }
+    private void startTrack(){
+        //startService(new Intent(getBaseContext(), StreamerService.class));
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
+    }
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
+    private void stopTrack(){
 
-        mPlayPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                    mPlayPause.setVisibility(VISIBLE);
-                    mPlayPause.setImageDrawable(mPlayDrawable);
-                } else {
-                    mediaPlayer.start();
-                    mPlayPause.setVisibility(VISIBLE);
-                    mPlayPause.setImageDrawable(mPauseDrawable);
-
-                }
-            }
-        });
     }
 
     @Override
@@ -168,6 +97,33 @@ public class PlaybackActivity extends ActionBarActivity {
     @Override
     public void onStop() {
         super.onStop();
-        mediaPlayer.stop();
+        //mMediaPlayer.stop();
     }
+
+
+
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            StreamerService.LocalBinder binder = (StreamerService.LocalBinder) service;
+            mService = binder.getService();
+
+            if (mService==null)
+                Log.d("myservice", "still null");
+
+            mService.playSong();
+
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
 }

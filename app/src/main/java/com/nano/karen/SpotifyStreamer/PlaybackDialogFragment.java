@@ -21,7 +21,7 @@ import static android.view.View.VISIBLE;
 
 public class PlaybackDialogFragment extends DialogFragment {
 
-    MediaPlayer mediaPlayer;
+    MediaPlayer mMediaPlayer;
     TrackListItem mTrack;
     private TextView artistNameView;
     private TextView albumNameView;
@@ -37,17 +37,18 @@ public class PlaybackDialogFragment extends DialogFragment {
     private Drawable mPlayDrawable;
 
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mediaPlayer = new MediaPlayer();
+        mMediaPlayer = new MediaPlayer();
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             mTrack  = bundle.getParcelable("my parcel");
         }
-
+        
     }
 
     @Override
@@ -90,12 +91,12 @@ public class PlaybackDialogFragment extends DialogFragment {
         }
 
 
-
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            //mediaPlayer.setDataSource(trackURL);
-            mediaPlayer.setDataSource(mTrack.trackPreviewURL);
-            mediaPlayer.prepare();
+            //mMediaPlayer.setDataSource(trackURL);
+            mMediaPlayer.setDataSource(mTrack.trackPreviewURL);
+            Log.d("myservice", mTrack.trackPreviewURL);
+            mMediaPlayer.prepare();
         }
         catch (IllegalArgumentException e){
             e.printStackTrace();
@@ -107,27 +108,28 @@ public class PlaybackDialogFragment extends DialogFragment {
         }
 
 
-        int duration = mediaPlayer.getDuration();
+        int duration = mMediaPlayer.getDuration();
         mSeekbar.setMax(duration);
         mStart.setText("0.00");
         mEnd.setText(String.format("%.2f", duration / 100000.0));
-        mSeekbar.setProgress(mediaPlayer.getCurrentPosition());
+        mSeekbar.setProgress(mMediaPlayer.getCurrentPosition());
         mSeekbar.postDelayed(
                 new Runnable() {
                     @Override
                     public void run() {
-                        mSeekbar.setProgress(mediaPlayer.getCurrentPosition());
+                        mSeekbar.setProgress(mMediaPlayer.getCurrentPosition());
                         mSeekbar.postDelayed(this, 500);
                     }
                 }, 1000);
-        mediaPlayer.start();
 
+
+        //mMediaPlayer.start();
 
         mSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser)
-                    mediaPlayer.seekTo(progress);
+                    mMediaPlayer.seekTo(progress);
             }
 
             @Override
@@ -142,29 +144,33 @@ public class PlaybackDialogFragment extends DialogFragment {
         mPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
+
+                if (mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.pause();
                     mPlayPause.setVisibility(VISIBLE);
                     mPlayPause.setImageDrawable(mPlayDrawable);
                 } else {
-                    mediaPlayer.start();
+                    mMediaPlayer.start();
                     mPlayPause.setVisibility(VISIBLE);
                     mPlayPause.setImageDrawable(mPauseDrawable);
-
                 }
             }
         });
-
-
-
         return rootView;
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        //super.onSaveInstanceState(savedInstanceState);
+        //savedInstanceState.putInt("currentTrackPosition", mMediaPlayer.getCurrentPosition());
     }
 
 
     @Override
     public void onStop() {
         super.onStop();
-        mediaPlayer.stop();
+        mMediaPlayer.stop();
     }
 
 }

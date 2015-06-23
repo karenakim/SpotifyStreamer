@@ -130,20 +130,17 @@ public class TrackListFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                /*
                 Intent intent = new Intent(getActivity(), PlaybackActivity.class);
                 intent.putExtra("my parcel", mTracksAdapter.getItem(position));
-                startActivity(intent); */
+                startActivity(intent);
 
                 // start the playback dialog with a bundle instead
-                FragmentTransaction fm = getFragmentManager().beginTransaction();
-                DialogFragment playbackDialog = new PlaybackDialogFragment();
 
+                /*DialogFragment playbackDialog = new PlaybackDialogFragment();
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("my parcel", mTracksAdapter.getItem(position));
                 playbackDialog.setArguments(bundle);
-
-                playbackDialog.show(fm, "Sample Fragment");
+                playbackDialog.show(getFragmentManager(), "playback dialog");*/
             }
         });
 

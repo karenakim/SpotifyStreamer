@@ -37,7 +37,7 @@
         </activity>
 
         <service
-            android:name="com.nano.karen.spotifystreamer.StreamerService"
+            android:name=".StreamerService"
             android:enabled="true"
             android:exported="true" >
         </service>

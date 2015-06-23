@@ -171,9 +171,7 @@ public class ArtistListFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        Log.d("two pane", "in saving");
         if (!artistsList.isEmpty()) {
-            Log.d("two pane", "saving something");
             savedInstanceState.putParcelableArrayList(artistsBundleID, artistsList);
         }
         super.onSaveInstanceState(savedInstanceState);
