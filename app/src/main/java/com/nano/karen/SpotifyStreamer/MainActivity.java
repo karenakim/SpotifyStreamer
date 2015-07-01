@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.Objects;
+
 
 public class MainActivity extends ActionBarActivity
         implements ArtistListFragment.OnArtistSelectedListener, TrackListFragment.OnTrackSelectedListener, PlaybackDialogFragment.OnPlayListener {
@@ -27,8 +29,12 @@ public class MainActivity extends ActionBarActivity
     private StreamerService mService;
     private boolean mBound;
 
+    private static final String ACTION_PLAY = "com.example.action.PLAY";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("my player", "onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -39,7 +45,7 @@ public class MainActivity extends ActionBarActivity
             mTrackListFragment = (TrackListFragment) fm.findFragmentByTag(TrackListFragment.TAG);
 
             if ( mTrackListFragment == null) {
-                Log.d("two pane", "new tracklistfragment created");
+
                 mTrackListFragment = new TrackListFragment();
                 fm.beginTransaction()
                         .replace(R.id.track_list_container, mTrackListFragment, TrackListFragment.TAG)
@@ -51,8 +57,12 @@ public class MainActivity extends ActionBarActivity
 
 
         Intent sintent = new Intent(this, StreamerService.class);
-        bindService(sintent, mConnection, Context.BIND_AUTO_CREATE);
+        Log.d("my player", "in onCreate before bindService"+ "in tread " + Thread.currentThread().getName());
+        getApplicationContext().bindService(sintent, mConnection, Context.BIND_AUTO_CREATE);
+        //sintent.setAction(ACTION_PLAY);
+        //startService(sintent);
 
+        Log.d("my player", "in onCreate with after bindService "+mConnection.toString()+ "in tread " + Thread.currentThread().getName());
 
     }
 
@@ -109,19 +119,13 @@ public class MainActivity extends ActionBarActivity
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
 
-        /*Fragment prev = getFragmentManager().findFragmentByTag(PlaybackDialogFragment.TAG);
+        Fragment prev = getFragmentManager().findFragmentByTag(PlaybackDialogFragment.TAG);
         if (prev != null) {
+            Log.d("my dialog", prev.toString());
             ft.remove(prev);
-        }*/
+        }
 
-        ft.addToBackStack(null); // not working, still have the fragment on stack
-
-        // why the next two lines won't work? They should be equivallent to the show call below, right?
-        //ft.replace(R.id.container, playbackDialog, PlaybackDialogFragment.TAG);
-        //ft.commit();
         playbackDialog.show(ft, PlaybackDialogFragment.TAG);
-
-
         mService.play(curTrack.trackPreviewURL);
     }
 
@@ -137,11 +141,13 @@ public class MainActivity extends ActionBarActivity
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             StreamerService.LocalBinder binder = (StreamerService.LocalBinder) service;
             mService = binder.getService();
+            Log.d("my player", "in onServiceConnected "+mService.toString()+ "in tread " + Thread.currentThread().getName());
             mBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            Log.d("my player", "lost service"+mService.toString());
             mBound = false;
         }
     };
@@ -149,5 +155,20 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d("my player", "in onDestroy");
+        super.onDestroy();
+        getApplicationContext().unbindService(mConnection);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+        //outState.putParcelable("StreamerSercie", mService);
+
+        super.onSaveInstanceState(outState);
     }
 }

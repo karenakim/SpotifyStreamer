@@ -102,6 +102,11 @@ public class PlaybackDialogFragment extends DialogFragment {
         }
 
         service = mCallback.getStreamerService();
+        Log.d("my player", mCallback.toString());
+        if (service == null) {
+            Log.d("my player", "null pointer!!!" + Thread.currentThread().getName());
+            Log.d("my player", mCallback.toString());
+        }
         int duration = service.getDuration();
         mSeekbar.setMax(duration);
         mStart.setText("0.00");
@@ -137,10 +142,12 @@ public class PlaybackDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if (service.isPlaying()) {
+                    Log.d("my player", "still playing");
                     service.pause();
                     mPlayPause.setVisibility(VISIBLE);
                     mPlayPause.setImageDrawable(mPlayDrawable);
                 } else {
+                    Log.d("my player", "not playing");
                     service.start();
                     mPlayPause.setVisibility(VISIBLE);
                     mPlayPause.setImageDrawable(mPauseDrawable);
@@ -181,7 +188,11 @@ public class PlaybackDialogFragment extends DialogFragment {
     @Override
     public void onStop() {
         super.onStop();
-        //mMediaPlayer.stop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     public interface OnPlayListener{
@@ -189,5 +200,6 @@ public class PlaybackDialogFragment extends DialogFragment {
         public void playNext();
         public void playPrev();
     };
+
 
 }

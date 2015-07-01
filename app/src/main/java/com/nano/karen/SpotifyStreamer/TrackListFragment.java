@@ -149,8 +149,6 @@ public class TrackListFragment extends Fragment {
                 //try 3:  do a callback on parent activity
                 mCallback.onTrackSelected(mTracksAdapter.getItem(position));
                 curTrackIndex = position;
-                Log.d("current track", position+"");
-                Log.d("current track max", MAX_TRACK+"");
             }
         });
 

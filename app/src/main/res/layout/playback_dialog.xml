@@ -8,7 +8,7 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:id="@+id/fragment_playback_dialog">
+    android:id="@+id/playback_container">
 
 
     <TextView
