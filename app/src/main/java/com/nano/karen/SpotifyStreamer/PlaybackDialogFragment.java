@@ -102,16 +102,17 @@ public class PlaybackDialogFragment extends DialogFragment {
         }
 
         service = mCallback.getStreamerService();
-        Log.d("my player", mCallback.toString());
         if (service == null) {
             Log.d("my player", "null pointer!!!" + Thread.currentThread().getName());
             Log.d("my player", mCallback.toString());
         }
+        // crash here. The main activity hasn't got the bound service object reference yet.
+
         int duration = service.getDuration();
         mSeekbar.setMax(duration);
         mStart.setText("0.00");
-        mEnd.setText(String.format("%.2f", duration / 100000.0));
         mSeekbar.setProgress(service.getCurrentPosition());
+        mSeekbar.setProgress(0);
         mSeekbar.postDelayed(
                 new Runnable() {
                     @Override

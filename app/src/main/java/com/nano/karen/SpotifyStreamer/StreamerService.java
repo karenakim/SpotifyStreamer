@@ -44,7 +44,6 @@ public class StreamerService extends Service implements MediaPlayer.OnPreparedLi
             mBinder = new LocalBinder();
         }
         return mBinder;
-        //return null;
     }
 
     @Override
@@ -54,30 +53,7 @@ public class StreamerService extends Service implements MediaPlayer.OnPreparedLi
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("my player", "StreamerService onStartCommand"+ "in tread " + Thread.currentThread().getName());
-
-
-
-        if (intent.getAction().equals(ACTION_PLAY)) {
-
-            mMediaPlayer.reset();
-            mMediaPlayer.setOnPreparedListener(this);
-
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            try {
-                mMediaPlayer.setDataSource(getString(R.string.default_artist_track));
-                mMediaPlayer.prepareAsync();
-                Log.d("my player", "ready to play");
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-                Log.e("Playback", "bad arguments");
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e("Playback", "bad stream");
-            }
-        }
-
-        return 0;
+        return START_STICKY;
     }
 
     @Override

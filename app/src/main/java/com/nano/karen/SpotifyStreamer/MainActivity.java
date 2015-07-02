@@ -17,9 +17,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.Objects;
-
-
 public class MainActivity extends ActionBarActivity
         implements ArtistListFragment.OnArtistSelectedListener, TrackListFragment.OnTrackSelectedListener, PlaybackDialogFragment.OnPlayListener {
 
@@ -31,12 +28,39 @@ public class MainActivity extends ActionBarActivity
 
     private static final String ACTION_PLAY = "com.example.action.PLAY";
 
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            StreamerService.LocalBinder binder = (StreamerService.LocalBinder) service;
+            mService = binder.getService();
+            Log.d("my player", "in onServiceConnected "+mService.toString()+ "in tread " + Thread.currentThread().getName());
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            Log.d("my player", "lost service"+mService.toString());
+            mBound = false;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("my player", "onCreate");
 
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent sintent = new Intent(this, StreamerService.class);
+        Log.d("my player", "in onCreate before bindService"+ "in tread " + Thread.currentThread().getName());
+        Log.d("my player", "return value of startService: " + startService(sintent));
+        Log.d("my player", "return value of bindService: "+ getApplicationContext().bindService(sintent, mConnection, Context.BIND_AUTO_CREATE));
+        //sintent.setAction(ACTION_PLAY);
+        //startService(sintent);
+        Log.d("my player", "in onCreate after bindService "+mConnection.toString()+ "in tread " + Thread.currentThread().getName());
+
 
         if (findViewById(R.id.track_list_container) != null) {
             mTwoPane = true;
@@ -54,16 +78,6 @@ public class MainActivity extends ActionBarActivity
         } else {
             mTwoPane = false;
         }
-
-
-        Intent sintent = new Intent(this, StreamerService.class);
-        Log.d("my player", "in onCreate before bindService"+ "in tread " + Thread.currentThread().getName());
-        getApplicationContext().bindService(sintent, mConnection, Context.BIND_AUTO_CREATE);
-        //sintent.setAction(ACTION_PLAY);
-        //startService(sintent);
-
-        Log.d("my player", "in onCreate with after bindService "+mConnection.toString()+ "in tread " + Thread.currentThread().getName());
-
     }
 
     @Override
@@ -134,24 +148,6 @@ public class MainActivity extends ActionBarActivity
         return mService;
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            StreamerService.LocalBinder binder = (StreamerService.LocalBinder) service;
-            mService = binder.getService();
-            Log.d("my player", "in onServiceConnected "+mService.toString()+ "in tread " + Thread.currentThread().getName());
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            Log.d("my player", "lost service"+mService.toString());
-            mBound = false;
-        }
-    };
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -166,9 +162,6 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-
-        //outState.putParcelable("StreamerSercie", mService);
-
         super.onSaveInstanceState(outState);
     }
 }
