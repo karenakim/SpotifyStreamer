@@ -26,6 +26,7 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.nano.karen.SpotifyStreamer.MainActivity" />
+
         </activity>
 
         <service
@@ -33,6 +34,15 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+
+        <receiver android:name=".PlaybackDialogFragment$ResponseReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </receiver>
+
+
     </application>
 
 </manifest>

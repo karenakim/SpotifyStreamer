@@ -2,6 +2,11 @@ package com.nano.karen.SpotifyStreamer;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -23,6 +28,7 @@ import static android.view.View.VISIBLE;
 public class PlaybackDialogFragment extends DialogFragment {
 
     TrackListItem mTrack;
+    private View rootView;
     private TextView artistNameView;
     private TextView albumNameView;
     private ImageView albumImageView;
@@ -37,9 +43,16 @@ public class PlaybackDialogFragment extends DialogFragment {
     private Drawable mPlayDrawable;
 
     private OnPlayListener mCallback;
-    private  StreamerService service;
+    //private  StreamerService service;
+
+    private ResponseReceiver receiver;
+
 
     static String TAG = "PlaybackDialogFragment";
+
+    public PlaybackDialogFragment() {
+        super();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +70,7 @@ public class PlaybackDialogFragment extends DialogFragment {
 
         try {
             mCallback = (OnPlayListener) activity;
+
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnPlayListener");
@@ -66,7 +80,21 @@ public class PlaybackDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.playback_dialog, container, false);
+        rootView = inflater.inflate(R.layout.playback_dialog, container, false);
+
+        //service = mCallback.getStreamerService();
+        //if (service != null)
+        buildView(rootView);
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_MAIN);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        receiver = new ResponseReceiver();
+        getActivity().registerReceiver(receiver, filter);
+
+        return rootView;
+    }
+
+    private void buildView(View rootView){
         getDialog().setTitle("Now playing");
 
         artistNameView = (TextView) rootView.findViewById(R.id.playback_artist_name);
@@ -101,18 +129,12 @@ public class PlaybackDialogFragment extends DialogFragment {
                     .into(albumImageView);
         }
 
-        service = mCallback.getStreamerService();
-        if (service == null) {
-            Log.d("my player", "null pointer!!!" + Thread.currentThread().getName());
-            Log.d("my player", mCallback.toString());
-        }
-        // crash here. The main activity hasn't got the bound service object reference yet.
-
-        int duration = service.getDuration();
+        /*int duration = service.getDuration();
         mSeekbar.setMax(duration);
         mStart.setText("0.00");
         mSeekbar.setProgress(service.getCurrentPosition());
-        mSeekbar.setProgress(0);
+        mEnd.setText(String.format("%.2f", duration / 10000000.0));
+        mSeekbar.setProgress(service.getCurrentPosition());
         mSeekbar.postDelayed(
                 new Runnable() {
                     @Override
@@ -154,7 +176,7 @@ public class PlaybackDialogFragment extends DialogFragment {
                     mPlayPause.setImageDrawable(mPauseDrawable);
                 }
             }
-        });
+        });*/
 
         mSkipNext.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -169,8 +191,6 @@ public class PlaybackDialogFragment extends DialogFragment {
                 mCallback.playPrev();
             }
         });
-
-        return rootView;
     }
 
 
@@ -183,7 +203,6 @@ public class PlaybackDialogFragment extends DialogFragment {
     @Override
     public void onPause() {
         super.onPause();
-        service.pause();
     }
 
     @Override
@@ -196,11 +215,23 @@ public class PlaybackDialogFragment extends DialogFragment {
         super.onDestroy();
     }
 
+
     public interface OnPlayListener{
-        public StreamerService getStreamerService();
+       // public StreamerService getStreamerService();
         public void playNext();
         public void playPrev();
     };
+
+
+    public static class ResponseReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("my player", "filter");
+            //mStart.setText("0.00");
+        }
+    }
+
 
 
 }

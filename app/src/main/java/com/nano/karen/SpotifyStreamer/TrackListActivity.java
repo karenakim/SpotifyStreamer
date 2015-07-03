@@ -48,7 +48,6 @@ public class TrackListActivity extends ActionBarActivity
     }
 
     public void playTrack(String trackURL){
-
            // TODO: 6/23/15  need logic from main activity
     }
 

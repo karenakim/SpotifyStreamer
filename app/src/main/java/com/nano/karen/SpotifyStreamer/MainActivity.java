@@ -17,17 +17,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends ActionBarActivity
         implements ArtistListFragment.OnArtistSelectedListener, TrackListFragment.OnTrackSelectedListener, PlaybackDialogFragment.OnPlayListener {
 
     private boolean mTwoPane;
     private TrackListFragment mTrackListFragment;
 
-    private StreamerService mService;
-    private boolean mBound;
+    //private StreamerService mService;
+    //private boolean mBound;
 
     private static final String ACTION_PLAY = "com.example.action.PLAY";
 
+
+    /*
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className,
@@ -43,7 +48,7 @@ public class MainActivity extends ActionBarActivity
             Log.d("my player", "lost service"+mService.toString());
             mBound = false;
         }
-    };
+    }; */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,14 +58,13 @@ public class MainActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent sintent = new Intent(this, StreamerService.class);
-        Log.d("my player", "in onCreate before bindService"+ "in tread " + Thread.currentThread().getName());
-        Log.d("my player", "return value of startService: " + startService(sintent));
-        Log.d("my player", "return value of bindService: "+ getApplicationContext().bindService(sintent, mConnection, Context.BIND_AUTO_CREATE));
-        //sintent.setAction(ACTION_PLAY);
-        //startService(sintent);
-        Log.d("my player", "in onCreate after bindService "+mConnection.toString()+ "in tread " + Thread.currentThread().getName());
+        /*Intent sintent = new Intent(this, StreamerService.class);
+        sintent.setAction(ACTION_PLAY);
+        startService(sintent);*/
 
+        //Log.d("my player", "return value of startService: " + startService(sintent));
+        //Log.d("my player", "return value of bindService: " + getApplicationContext().bindService(sintent, mConnection, Context.BIND_AUTO_CREATE));
+        //Log.d("my player", "in onCreate after bindService "+mConnection.toString()+ "in tread " + Thread.currentThread().getName());
 
         if (findViewById(R.id.track_list_container) != null) {
             mTwoPane = true;
@@ -140,24 +144,28 @@ public class MainActivity extends ActionBarActivity
         }
 
         playbackDialog.show(ft, PlaybackDialogFragment.TAG);
-        mService.play(curTrack.trackPreviewURL);
-    }
 
-    @Override
-    public StreamerService getStreamerService(){
-        return mService;
+        // send an intent instead here
+        //mService.play(curTrack.trackPreviewURL);
+
+        Intent sintent = new Intent(this, StreamerService.class);
+        sintent.putExtra("track", curTrack.trackPreviewURL);
+        //sintent.setAction(ACTION_PLAY);
+        startService(sintent);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        Intent sintent = new Intent(this, StreamerService.class);
+        stopService(sintent);
     }
 
     @Override
     protected void onDestroy() {
         Log.d("my player", "in onDestroy");
         super.onDestroy();
-        getApplicationContext().unbindService(mConnection);
+        //getApplicationContext().unbindService(mConnection);
     }
 
     @Override
