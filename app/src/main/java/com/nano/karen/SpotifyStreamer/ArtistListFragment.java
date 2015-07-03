@@ -64,7 +64,6 @@ public class ArtistListFragment extends Fragment {
         }
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -166,7 +165,6 @@ public class ArtistListFragment extends Fragment {
             }
         });
         return rootView;
-
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.nano.karen.SpotifyStreamer;
 
+import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -7,7 +8,10 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -19,6 +23,9 @@ public class StreamerService extends Service implements MediaPlayer.OnPreparedLi
     private static final String ACTION_PLAY = "com.example.action.PLAY";
     private static final String TAG = "StreamerService";
 
+    private IBinder mBinder;
+    private int duration;
+
     @Override
     public void onCreate() {
         Log.d("my player", "StreamerService onCreate"+ "in tread " + Thread.currentThread().getName()+ "in tread " + Thread.currentThread().getName());
@@ -26,13 +33,26 @@ public class StreamerService extends Service implements MediaPlayer.OnPreparedLi
         mMediaPlayer = new MediaPlayer();
     }
 
+
+    public class LocalBinder extends Binder {
+        StreamerService getService() {
+            Log.d("my player", "StreamerService getService: service returned "+StreamerService.this.toString()+ " in tread " + Thread.currentThread().getName());
+            return StreamerService.this;
+        }
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        Log.d("my player", "StreamerService onBind"+ " in tread " + Thread.currentThread().getName());
+        if (mBinder == null){
+            mBinder = new LocalBinder();
+        }
+        return mBinder;
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        duration = mp.getDuration();
         mp.start();
     }
 
@@ -43,6 +63,7 @@ public class StreamerService extends Service implements MediaPlayer.OnPreparedLi
         if (track.equals("play")) {
             Log.d(TAG, "in service play");
             start();
+
         }
         else if (track.equals("pause")) {
             Log.d(TAG, "in service pause");
@@ -56,6 +77,7 @@ public class StreamerService extends Service implements MediaPlayer.OnPreparedLi
         }
         return START_STICKY;
     }
+
 
     @Override
     public void onDestroy() {
@@ -78,7 +100,7 @@ public class StreamerService extends Service implements MediaPlayer.OnPreparedLi
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mMediaPlayer.setDataSource(track);
-            mMediaPlayer.prepareAsync();
+            mMediaPlayer.prepare();
             Log.d("my player", "ready to play");
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -87,12 +109,12 @@ public class StreamerService extends Service implements MediaPlayer.OnPreparedLi
             e.printStackTrace();
             Log.e("Playback", "bad stream");
         }
-
+        duration = mMediaPlayer.getDuration();
         mMediaPlayer.start();
     }
 
     public int getDuration() {
-        return mMediaPlayer.getDuration();
+        return duration;
     }
 
     public int getCurrentPosition() {
