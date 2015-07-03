@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -142,11 +143,7 @@ public class MainActivity extends ActionBarActivity
             Log.d("my dialog", prev.toString());
             ft.remove(prev);
         }
-
         playbackDialog.show(ft, PlaybackDialogFragment.TAG);
-
-        // send an intent instead here
-        //mService.play(curTrack.trackPreviewURL);
 
         Intent sintent = new Intent(this, StreamerService.class);
         sintent.putExtra("track", curTrack.trackPreviewURL);
@@ -165,11 +162,12 @@ public class MainActivity extends ActionBarActivity
     protected void onDestroy() {
         Log.d("my player", "in onDestroy");
         super.onDestroy();
-        //getApplicationContext().unbindService(mConnection);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
+
+
 }

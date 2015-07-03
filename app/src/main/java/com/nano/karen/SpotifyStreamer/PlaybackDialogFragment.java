@@ -43,10 +43,7 @@ public class PlaybackDialogFragment extends DialogFragment {
     private Drawable mPlayDrawable;
 
     private OnPlayListener mCallback;
-    //private  StreamerService service;
-
-    private ResponseReceiver receiver;
-
+    private boolean isPlaying = true;
 
     static String TAG = "PlaybackDialogFragment";
 
@@ -82,14 +79,12 @@ public class PlaybackDialogFragment extends DialogFragment {
                              final Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.playback_dialog, container, false);
 
-        //service = mCallback.getStreamerService();
-        //if (service != null)
         buildView(rootView);
 
-        IntentFilter filter = new IntentFilter(Intent.ACTION_MAIN);
+        /*IntentFilter filter = new IntentFilter(Intent.ACTION_MAIN);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         receiver = new ResponseReceiver();
-        getActivity().registerReceiver(receiver, filter);
+        getActivity().registerReceiver(receiver, filter);*/
 
         return rootView;
     }
@@ -159,24 +154,31 @@ public class PlaybackDialogFragment extends DialogFragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
-        });
+        }); */
+
 
         mPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (service.isPlaying()) {
-                    Log.d("my player", "still playing");
-                    service.pause();
+                if (isPlaying) {
+                    Intent sintent = new Intent(getActivity(), StreamerService.class);
+                    sintent.putExtra("track", "pause");
+                    getActivity().startService(sintent);
+
                     mPlayPause.setVisibility(VISIBLE);
                     mPlayPause.setImageDrawable(mPlayDrawable);
+                    isPlaying = false;
                 } else {
-                    Log.d("my player", "not playing");
-                    service.start();
+                    Intent sintent = new Intent(getActivity(), StreamerService.class);
+                    sintent.putExtra("track", "play");
+                    getActivity().startService(sintent);
+
                     mPlayPause.setVisibility(VISIBLE);
                     mPlayPause.setImageDrawable(mPauseDrawable);
+                    isPlaying = true;
                 }
             }
-        });*/
+        });
 
         mSkipNext.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,7 +194,6 @@ public class PlaybackDialogFragment extends DialogFragment {
             }
         });
     }
-
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -217,21 +218,8 @@ public class PlaybackDialogFragment extends DialogFragment {
 
 
     public interface OnPlayListener{
-       // public StreamerService getStreamerService();
         public void playNext();
         public void playPrev();
     };
-
-
-    public static class ResponseReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d("my player", "filter");
-            //mStart.setText("0.00");
-        }
-    }
-
-
 
 }

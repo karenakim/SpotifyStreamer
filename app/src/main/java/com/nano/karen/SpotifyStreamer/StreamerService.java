@@ -1,6 +1,5 @@
 package com.nano.karen.SpotifyStreamer;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -8,25 +7,17 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.BindException;
 
-public class StreamerService extends IntentService implements MediaPlayer.OnPreparedListener {
+public class StreamerService extends Service implements MediaPlayer.OnPreparedListener {
 
     private MediaPlayer mMediaPlayer = null;
-    private IBinder mBinder;
 
     private static final String ACTION_PLAY = "com.example.action.PLAY";
     private static final String TAG = "StreamerService";
-
-    public StreamerService() {
-        super("");
-    }
 
     @Override
     public void onCreate() {
@@ -35,16 +26,8 @@ public class StreamerService extends IntentService implements MediaPlayer.OnPrep
         mMediaPlayer = new MediaPlayer();
     }
 
-    public class LocalBinder extends Binder {
-        StreamerService getService() {
-            Log.d("my player", "StreamerService getService: service returned "+StreamerService.this.toString()+ " in tread " + Thread.currentThread().getName());
-            return StreamerService.this;
-        }
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("my player", "StreamerService onBind"+ " in tread " + Thread.currentThread().getName());
         return null;
     }
 
@@ -57,21 +40,27 @@ public class StreamerService extends IntentService implements MediaPlayer.OnPrep
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         String track = intent.getStringExtra("track");
-        play(track);
-        //play(getString(R.string.default_artist_track));
+        if (track.equals("play")) {
+            Log.d(TAG, "in service play");
+            start();
+        }
+        else if (track.equals("pause")) {
+            Log.d(TAG, "in service pause");
+            pause();
+
+        }
+        else {
+            Log.d(TAG, "in service play track");
+            play(track);
+
+        }
         return START_STICKY;
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        //play(getString(R.string.default_artist_track));
-    }
-
-    @Override
     public void onDestroy() {
-        Log.d("my player", "StreamerService onDestroy"+ "in tread " + Thread.currentThread().getName());
+        Log.d(TAG, "StreamerService onDestroy"+ "in tread " + Thread.currentThread().getName());
         super.onDestroy();
-
         if (mMediaPlayer != null) {
             if(mMediaPlayer.isPlaying()) {
                 mMediaPlayer.stop();
@@ -80,7 +69,6 @@ public class StreamerService extends IntentService implements MediaPlayer.OnPrep
             mMediaPlayer = null;
         }
     }
-
 
     public void play(String track) {
         Log.d(TAG, "play");
@@ -99,11 +87,6 @@ public class StreamerService extends IntentService implements MediaPlayer.OnPrep
             e.printStackTrace();
             Log.e("Playback", "bad stream");
         }
-
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(Intent.ACTION_MAIN);
-        broadcastIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        sendBroadcast(broadcastIntent);
 
         mMediaPlayer.start();
     }
