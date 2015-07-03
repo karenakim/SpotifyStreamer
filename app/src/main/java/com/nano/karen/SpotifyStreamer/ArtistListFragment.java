@@ -129,6 +129,7 @@ public class ArtistListFragment extends Fragment {
 
                             }
 
+                            
                             @Override
                             public void failure(RetrofitError error) {
                                 Log.d("Artist failure", error.toString());
